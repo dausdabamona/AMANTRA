@@ -6,11 +6,22 @@
  * - sellerAmount + platformFee + mediatorFee = totalAmount
  * - All amounts must be positive
  * - Currency must match
+ * - Network fee bearer is declared and enforced
+ *
+ * AKAD PRINCIPLE: "Tidak boleh ada potongan tersembunyi"
+ * All fees including network transfer fees must be declared at creation.
  *
  * @module escrow/domain
  */
 
 import * as crypto from 'crypto';
+import {
+  NetworkFeeBearer,
+  NetworkFeeConfig,
+  NetworkFeeSettlementRecord,
+  calculateSellerNetAfterFees,
+  networkFeeBearerToString,
+} from './network-fee.types';
 
 /**
  * Individual transfer leg in a split payment
@@ -77,6 +88,14 @@ export interface SplitPaymentProps {
     bankCode: string;
     accountName: string;
   };
+  /**
+   * Network fee configuration - REQUIRED for akad compliance
+   */
+  networkFeeConfig: NetworkFeeConfig;
+  /**
+   * Hash of the signed akad statement (must be set at contract creation)
+   */
+  akadStatementHash: string;
 }
 
 /**
@@ -84,6 +103,8 @@ export interface SplitPaymentProps {
  *
  * Immutable representation of how a contract settlement
  * should be split between seller, platform, and optional mediator.
+ *
+ * AKAD COMPLIANCE: Includes network fee handling with full transparency.
  */
 export class SplitPayment {
   private readonly _contractId: string;
@@ -96,6 +117,15 @@ export class SplitPayment {
   private readonly _referenceHash: string;
   private readonly _createdAt: Date;
 
+  // Network fee properties (AKAD compliance)
+  private readonly _networkFeeBearer: NetworkFeeBearer;
+  private readonly _estimatedNetworkFee: number;
+  private readonly _akadStatementHash: string;
+  private readonly _sellerNetAfterFees: number;
+
+  // Settlement record (populated after settlement)
+  private _settlementRecord: NetworkFeeSettlementRecord | null = null;
+
   private constructor(props: SplitPaymentProps) {
     this._contractId = props.contractId;
     this._totalAmount = props.totalAmount;
@@ -105,7 +135,19 @@ export class SplitPayment {
     this._mediatorFee = props.mediatorFee;
     this._createdAt = new Date();
 
-    // Build transfer legs
+    // Network fee configuration (immutable from akad)
+    this._networkFeeBearer = props.networkFeeConfig.bearer;
+    this._estimatedNetworkFee = props.networkFeeConfig.estimatedFee;
+    this._akadStatementHash = props.akadStatementHash;
+
+    // Calculate seller's net amount after network fees
+    this._sellerNetAfterFees = calculateSellerNetAfterFees(
+      props.sellerAmount,
+      props.networkFeeConfig.estimatedFee,
+      props.networkFeeConfig.bearer
+    );
+
+    // Build transfer legs (with network fee adjustments)
     this._legs = this.buildTransferLegs(props);
 
     // Generate deterministic reference hash for idempotency
@@ -122,6 +164,9 @@ export class SplitPayment {
 
   /**
    * Creates a new SplitPayment with validation
+   *
+   * AKAD COMPLIANCE: Validates network fee configuration and ensures
+   * fee bearer declaration is present.
    *
    * @throws Error if validation fails
    */
@@ -165,11 +210,38 @@ export class SplitPayment {
       throw new Error('Mediator account required when mediator fee > 0');
     }
 
+    // AKAD COMPLIANCE: Validate network fee configuration
+    if (!props.networkFeeConfig) {
+      throw new Error('Network fee configuration is required (akad compliance)');
+    }
+
+    if (props.networkFeeConfig.estimatedFee < 0) {
+      throw new Error('Estimated network fee cannot be negative');
+    }
+
+    // If platform bears fees, ensure platform fee is sufficient
+    if (
+      props.networkFeeConfig.bearer === NetworkFeeBearer.PLATFORM &&
+      props.networkFeeConfig.estimatedFee > props.platformFee
+    ) {
+      throw new Error(
+        `Platform fee (${props.platformFee}) must be >= estimated network fee ` +
+        `(${props.networkFeeConfig.estimatedFee}) when PLATFORM bears network fees`
+      );
+    }
+
+    // AKAD COMPLIANCE: Validate akad statement hash
+    if (!props.akadStatementHash || props.akadStatementHash === '0x' + '0'.repeat(64)) {
+      throw new Error('Akad statement hash is required (fee disclosure must be signed)');
+    }
+
     return new SplitPayment(props);
   }
 
   /**
    * Creates from contract payout info (from blockchain)
+   *
+   * AKAD COMPLIANCE: Includes network fee configuration from blockchain
    */
   static fromPayoutInfo(
     contractId: string,
@@ -178,6 +250,9 @@ export class SplitPayment {
       sellerAmount: bigint;
       platformFee: bigint;
       mediatorFee: bigint;
+      networkFeeBearer: number;
+      estimatedNetworkFee: bigint;
+      akadStatementHash: string;
     },
     accounts: {
       seller: { accountNumber: string; bankCode: string; accountName: string };
@@ -195,6 +270,12 @@ export class SplitPayment {
       sellerAccount: accounts.seller,
       platformAccount: accounts.platform,
       mediatorAccount: accounts.mediator,
+      networkFeeConfig: {
+        bearer: payoutInfo.networkFeeBearer as NetworkFeeBearer,
+        estimatedFee: Number(payoutInfo.estimatedNetworkFee),
+        currency: 'IDR',
+      },
+      akadStatementHash: payoutInfo.akadStatementHash,
     });
   }
 
@@ -250,6 +331,46 @@ export class SplitPayment {
    */
   get hasMediatorFee(): boolean {
     return this._mediatorFee > 0;
+  }
+
+  // ============================================
+  // Network Fee Getters (AKAD Compliance)
+  // ============================================
+
+  /**
+   * Who bears the bank network transfer fees
+   */
+  get networkFeeBearer(): NetworkFeeBearer {
+    return this._networkFeeBearer;
+  }
+
+  /**
+   * Estimated network fee at time of akad
+   */
+  get estimatedNetworkFee(): number {
+    return this._estimatedNetworkFee;
+  }
+
+  /**
+   * Hash of the signed akad statement
+   */
+  get akadStatementHash(): string {
+    return this._akadStatementHash;
+  }
+
+  /**
+   * Seller's expected net amount after network fees
+   * Based on declared fee bearer and estimated fees
+   */
+  get sellerNetAfterFees(): number {
+    return this._sellerNetAfterFees;
+  }
+
+  /**
+   * Settlement record (available after settlement)
+   */
+  get settlementRecord(): NetworkFeeSettlementRecord | null {
+    return this._settlementRecord;
   }
 
   // ============================================
@@ -319,6 +440,90 @@ export class SplitPayment {
   }
 
   /**
+   * Calculates actual transfer amounts based on network fee bearer and actual fee
+   *
+   * AKAD COMPLIANCE: Enforces declared fee bearer policy
+   *
+   * @param actualNetworkFee - Actual fee charged by bank
+   * @returns Adjusted amounts for each party
+   */
+  calculateActualAmounts(actualNetworkFee: number): {
+    sellerNetReceived: number;
+    platformNetReceived: number;
+    mediatorNetReceived: number;
+    networkFeeAbsorbedBy: 'PLATFORM' | 'SELLER' | 'BUYER';
+    feeVariance: number;
+  } {
+    const feeVariance = actualNetworkFee - this._estimatedNetworkFee;
+
+    switch (this._networkFeeBearer) {
+      case NetworkFeeBearer.PLATFORM:
+        // Platform bears all network fees
+        return {
+          sellerNetReceived: this._sellerAmount,
+          platformNetReceived: this._platformFee - actualNetworkFee,
+          mediatorNetReceived: this._mediatorFee,
+          networkFeeAbsorbedBy: 'PLATFORM',
+          feeVariance,
+        };
+
+      case NetworkFeeBearer.SELLER:
+        // Seller bears network fees (deducted from seller amount)
+        return {
+          sellerNetReceived: this._sellerAmount - actualNetworkFee,
+          platformNetReceived: this._platformFee,
+          mediatorNetReceived: this._mediatorFee,
+          networkFeeAbsorbedBy: 'SELLER',
+          feeVariance,
+        };
+
+      case NetworkFeeBearer.BUYER:
+        // Buyer already paid network fee at funding
+        // All parties receive full amounts
+        return {
+          sellerNetReceived: this._sellerAmount,
+          platformNetReceived: this._platformFee,
+          mediatorNetReceived: this._mediatorFee,
+          networkFeeAbsorbedBy: 'BUYER',
+          feeVariance,
+        };
+
+      default:
+        throw new Error(`Unknown network fee bearer: ${this._networkFeeBearer}`);
+    }
+  }
+
+  /**
+   * Records the settlement network fee details
+   *
+   * NOTE: This creates a new SplitPayment with settlement record
+   * (maintains immutability)
+   */
+  withSettlementRecord(record: NetworkFeeSettlementRecord): SplitPayment {
+    const newPayment = Object.create(SplitPayment.prototype);
+    Object.assign(newPayment, this);
+    (newPayment as any)._settlementRecord = record;
+    return newPayment;
+  }
+
+  /**
+   * Generates network fee disclosure text for display
+   */
+  getNetworkFeeDisclosure(): string {
+    const bearerText = {
+      [NetworkFeeBearer.PLATFORM]: 'PLATFORM (AMANTRA menanggung biaya)',
+      [NetworkFeeBearer.SELLER]: 'PENJUAL (dipotong dari pembayaran)',
+      [NetworkFeeBearer.BUYER]: 'PEMBELI (sudah dibayar terpisah)',
+    }[this._networkFeeBearer];
+
+    return (
+      `Biaya transfer bank (jika ada) ditanggung oleh: ${bearerText}.\n` +
+      `Estimasi biaya transfer: ${this.formatCurrency(this._estimatedNetworkFee)}.\n` +
+      `Jumlah bersih yang diterima penjual setelah biaya bank: ${this.formatCurrency(this._sellerNetAfterFees)}.`
+    );
+  }
+
+  /**
    * Serializes for storage
    */
   toJSON(): Record<string, unknown> {
@@ -332,26 +537,62 @@ export class SplitPayment {
       legs: this._legs,
       referenceHash: this._referenceHash,
       createdAt: this._createdAt.toISOString(),
+      // Network fee fields (AKAD compliance)
+      networkFeeBearer: networkFeeBearerToString(this._networkFeeBearer),
+      estimatedNetworkFee: this._estimatedNetworkFee,
+      akadStatementHash: this._akadStatementHash,
+      sellerNetAfterFees: this._sellerNetAfterFees,
+      settlementRecord: this._settlementRecord,
     };
   }
 
   /**
    * Creates formatted description for audit
+   *
+   * AKAD COMPLIANCE: Includes full network fee disclosure
    */
   toAuditString(): string {
+    const bearerLabel = {
+      [NetworkFeeBearer.PLATFORM]: 'PLATFORM',
+      [NetworkFeeBearer.SELLER]: 'SELLER',
+      [NetworkFeeBearer.BUYER]: 'BUYER',
+    }[this._networkFeeBearer];
+
     const lines = [
       `Contract: ${this._contractId}`,
       `Total: ${this.formatCurrency(this._totalAmount)}`,
-      `Split:`,
-      `  Seller: ${this.formatCurrency(this._sellerAmount)}`,
-      `  Platform: ${this.formatCurrency(this._platformFee)}`,
+      ``,
+      `Fee Split:`,
+      `  Seller Amount: ${this.formatCurrency(this._sellerAmount)}`,
+      `  Platform Fee: ${this.formatCurrency(this._platformFee)}`,
     ];
 
     if (this._mediatorFee > 0) {
-      lines.push(`  Mediator: ${this.formatCurrency(this._mediatorFee)}`);
+      lines.push(`  Mediator Fee: ${this.formatCurrency(this._mediatorFee)}`);
     }
 
-    lines.push(`Reference: ${this._referenceHash}`);
+    lines.push(
+      ``,
+      `Network Fee Declaration (Akad):`,
+      `  Fee Bearer: ${bearerLabel}`,
+      `  Estimated Fee: ${this.formatCurrency(this._estimatedNetworkFee)}`,
+      `  Seller Net After Fees: ${this.formatCurrency(this._sellerNetAfterFees)}`,
+      `  Akad Statement Hash: ${this._akadStatementHash}`,
+    );
+
+    if (this._settlementRecord) {
+      lines.push(
+        ``,
+        `Settlement Record:`,
+        `  Actual Network Fee: ${this.formatCurrency(this._settlementRecord.actualFee)}`,
+        `  Seller Net Received: ${this.formatCurrency(this._settlementRecord.sellerNetReceived)}`,
+        `  Platform Net Received: ${this.formatCurrency(this._settlementRecord.platformNetReceived)}`,
+        `  Bank Receipt Hash: ${this._settlementRecord.bankReceiptHash}`,
+        `  Settled At: ${this._settlementRecord.settledAt.toISOString()}`,
+      );
+    }
+
+    lines.push(``, `Reference: ${this._referenceHash}`);
 
     return lines.join('\n');
   }
@@ -410,7 +651,7 @@ export class SplitPayment {
 
   /**
    * Generates deterministic hash for idempotency
-   * hash(contractId + sellerAmount + platformFee + mediatorFee)
+   * Includes network fee configuration for akad compliance
    */
   private generateReferenceHash(): string {
     const data = [
@@ -419,6 +660,10 @@ export class SplitPayment {
       this._platformFee.toString(),
       this._mediatorFee.toString(),
       this._currency,
+      // Include network fee in hash for immutability
+      this._networkFeeBearer.toString(),
+      this._estimatedNetworkFee.toString(),
+      this._akadStatementHash,
     ].join('|');
 
     return crypto

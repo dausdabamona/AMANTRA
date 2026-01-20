@@ -25,21 +25,25 @@ import { SettlementStatus } from '../domain/settlement-status.enum';
 /**
  * Minimal ABI for AmantraLedgerV2 contract.
  * Only includes functions needed by settlement module.
+ *
+ * Updated to include network fee fields for akad compliance.
  */
 const AMANTRA_LEDGER_V2_ABI = [
   // View functions
-  'function getContract(bytes32 contractId) external view returns (tuple(bytes32 id, bytes32 contractNumber, bytes32 seller, bytes32 buyer, uint256 totalAmount, uint8 status, tuple(uint16 bps, uint256 platformFee, uint256 sellerAmount, uint256 mediatorFee) feeInfo, bytes32 escrowReference, uint64 createdAt, uint64 updatedAt, uint32 version))',
+  'function getContract(bytes32 contractId) external view returns (tuple(bytes32 id, bytes32 contractNumber, bytes32 seller, bytes32 buyer, uint256 totalAmount, uint8 status, tuple(uint16 bps, uint256 platformFee, uint256 sellerAmount, uint256 mediatorFee, uint8 networkFeeBearer, uint256 estimatedNetworkFee, bytes32 akadStatementHash) feeInfo, bytes32 escrowReference, uint64 createdAt, uint64 updatedAt, uint32 version))',
   'function getContractStatus(bytes32 contractId) external view returns (uint8)',
-  'function getFeeInfo(bytes32 contractId) external view returns (tuple(uint16 bps, uint256 platformFee, uint256 sellerAmount, uint256 mediatorFee))',
+  'function getFeeInfo(bytes32 contractId) external view returns (tuple(uint16 bps, uint256 platformFee, uint256 sellerAmount, uint256 mediatorFee, uint8 networkFeeBearer, uint256 estimatedNetworkFee, bytes32 akadStatementHash))',
   'function isTransactionProcessed(bytes32 transactionRef) external view returns (bool)',
   'function getContractVersion(bytes32 contractId) external view returns (uint32)',
 
-  // State-changing functions
-  'function markSettled(bytes32 contractId, bytes32 settlementRef, bytes32 transactionRef) external',
+  // State-changing functions (updated signature with network fee audit params)
+  'function markSettled(bytes32 contractId, bytes32 settlementRef, bytes32 transactionRef, uint256 actualNetworkFee, uint256 sellerNetReceived, uint256 platformNetReceived, bytes32 bankReceiptHash) external',
 
   // Events
   'event SettlementMarked(bytes32 indexed contractId, bytes32 indexed settlementRef, uint256 sellerAmount, uint256 platformFee, uint256 mediatorFee, address settledBy, uint64 timestamp)',
+  'event SettlementNetworkFeeRecord(bytes32 indexed contractId, bytes32 indexed settlementRef, uint8 declaredBearer, uint256 actualNetworkFee, uint256 sellerNetReceived, uint256 platformNetReceived, bytes32 bankReceiptHash, uint64 timestamp)',
   'event StatusTransition(bytes32 indexed contractId, uint8 indexed oldStatus, uint8 indexed newStatus, address triggeredBy, bytes32 transactionRef, uint64 timestamp, uint32 newVersion)',
+  'event FeeDisclosure(bytes32 indexed contractId, uint8 networkFeeBearer, uint256 estimatedNetworkFee, bytes32 akadStatementHash, uint256 mediatorFee, uint64 timestamp)',
 ];
 
 // ============================================
@@ -60,12 +64,19 @@ export enum OnChainStatus {
 
 /**
  * Fee information from smart contract
+ * Updated to include network fee fields for akad compliance
  */
 export interface OnChainFeeInfo {
   bps: number;
   platformFee: bigint;
   sellerAmount: bigint;
   mediatorFee: bigint;
+  /** Who bears network transfer fees (0=PLATFORM, 1=SELLER, 2=BUYER) */
+  networkFeeBearer: number;
+  /** Estimated network fee at time of akad */
+  estimatedNetworkFee: bigint;
+  /** Hash of signed akad statement */
+  akadStatementHash: string;
 }
 
 /**
@@ -87,6 +98,7 @@ export interface OnChainContract {
 
 /**
  * Payout information extracted for settlement
+ * Updated to include network fee fields for akad compliance
  */
 export interface PayoutInfo {
   contractId: string;
@@ -97,6 +109,12 @@ export interface PayoutInfo {
   feeBps: number;
   escrowReference: string;
   version: number;
+  /** Who bears network transfer fees (0=PLATFORM, 1=SELLER, 2=BUYER) */
+  networkFeeBearer: number;
+  /** Estimated network fee at time of akad */
+  estimatedNetworkFee: bigint;
+  /** Hash of signed akad statement */
+  akadStatementHash: string;
 }
 
 /**
@@ -273,8 +291,10 @@ export class LedgerSyncService implements OnModuleInit {
   /**
    * Gets payout information for settlement.
    *
+   * AKAD COMPLIANCE: Includes network fee configuration from blockchain
+   *
    * @param contractId - Contract identifier
-   * @returns Payout info with amounts and escrow reference
+   * @returns Payout info with amounts, escrow reference, and network fee config
    * @throws Error if contract not found
    */
   async getPayoutInfo(contractId: string): Promise<PayoutInfo> {
@@ -294,6 +314,10 @@ export class LedgerSyncService implements OnModuleInit {
         feeBps: Number(contractData.feeInfo.bps),
         escrowReference: this.fromBytes32(contractData.escrowReference),
         version: Number(contractData.version),
+        // Network fee fields (akad compliance)
+        networkFeeBearer: Number(contractData.feeInfo.networkFeeBearer),
+        estimatedNetworkFee: contractData.feeInfo.estimatedNetworkFee,
+        akadStatementHash: contractData.feeInfo.akadStatementHash,
       };
 
       this.emitEvent('payout_fetched', contractId, {
@@ -301,6 +325,9 @@ export class LedgerSyncService implements OnModuleInit {
         sellerAmount: payoutInfo.sellerAmount.toString(),
         platformFee: payoutInfo.platformFee.toString(),
         mediatorFee: payoutInfo.mediatorFee.toString(),
+        networkFeeBearer: payoutInfo.networkFeeBearer,
+        estimatedNetworkFee: payoutInfo.estimatedNetworkFee.toString(),
+        akadStatementHash: payoutInfo.akadStatementHash,
       });
 
       return payoutInfo;
@@ -392,14 +419,31 @@ export class LedgerSyncService implements OnModuleInit {
   // ============================================
 
   /**
-   * Marks a contract as settled on the blockchain.
+   * Network fee audit parameters for markSettled
+   */
+  interface NetworkFeeAuditParams {
+    /** Actual network fee charged by bank */
+    actualNetworkFee: number;
+    /** Net amount seller actually received */
+    sellerNetReceived: number;
+    /** Net amount platform actually received */
+    platformNetReceived: number;
+    /** Hash of bank transfer receipts */
+    bankReceiptHash: string;
+  }
+
+  /**
+   * Marks a contract as settled on the blockchain with network fee audit.
    *
    * SACRED RULE: Only call this AFTER bank confirms transfer success.
    * This creates an immutable on-chain record of the settlement.
    *
+   * AKAD COMPLIANCE: Records actual network fees and net amounts for audit trail.
+   *
    * @param contractId - Contract identifier
    * @param settlementRefHash - Hash of settlement reference (for audit)
    * @param transactionRef - Unique transaction reference (idempotency key)
+   * @param networkFeeAudit - Network fee audit parameters
    * @returns Transaction result with hash and block info
    * @throws Error if transaction fails or signer unavailable
    */
@@ -407,6 +451,12 @@ export class LedgerSyncService implements OnModuleInit {
     contractId: string,
     settlementRefHash: string,
     transactionRef: string,
+    networkFeeAudit?: {
+      actualNetworkFee: number;
+      sellerNetReceived: number;
+      platformNetReceived: number;
+      bankReceiptHash: string;
+    },
   ): Promise<MarkSettledResult> {
     this.ensureConnected();
     this.ensureCanWrite();
@@ -432,31 +482,54 @@ export class LedgerSyncService implements OnModuleInit {
       };
     }
 
+    // Default network fee audit values if not provided
+    const auditParams = networkFeeAudit || {
+      actualNetworkFee: 0,
+      sellerNetReceived: 0,
+      platformNetReceived: 0,
+      bankReceiptHash: '0x' + '0'.repeat(64),
+    };
+
     // Execute with retry
     return await this.executeWithRetry(
       async () => this.executeMarkSettled(
         contractIdBytes,
         settlementRefBytes,
         transactionRefBytes,
+        auditParams,
       ),
       `markSettled for ${contractId}`,
     );
   }
 
   /**
-   * Executes the markSettled transaction.
+   * Executes the markSettled transaction with network fee audit.
+   *
+   * AKAD COMPLIANCE: Records network fee details on-chain for immutable audit trail.
    */
   private async executeMarkSettled(
     contractIdBytes: string,
     settlementRefBytes: string,
     transactionRefBytes: string,
+    auditParams: {
+      actualNetworkFee: number;
+      sellerNetReceived: number;
+      platformNetReceived: number;
+      bankReceiptHash: string;
+    },
   ): Promise<MarkSettledResult> {
     try {
+      const bankReceiptHashBytes = this.toBytes32(auditParams.bankReceiptHash);
+
       // Estimate gas
       const gasEstimate = await this.contract!.markSettled.estimateGas(
         contractIdBytes,
         settlementRefBytes,
         transactionRefBytes,
+        BigInt(auditParams.actualNetworkFee),
+        BigInt(auditParams.sellerNetReceived),
+        BigInt(auditParams.platformNetReceived),
+        bankReceiptHashBytes,
       );
 
       // Get current gas price with cache
@@ -467,11 +540,15 @@ export class LedgerSyncService implements OnModuleInit {
 
       this.logger.log(`Gas estimate: ${gasEstimate}, using limit: ${gasLimit}`);
 
-      // Execute transaction
+      // Execute transaction with network fee audit parameters
       const tx = await this.contract!.markSettled(
         contractIdBytes,
         settlementRefBytes,
         transactionRefBytes,
+        BigInt(auditParams.actualNetworkFee),
+        BigInt(auditParams.sellerNetReceived),
+        BigInt(auditParams.platformNetReceived),
+        bankReceiptHashBytes,
         {
           gasLimit,
           gasPrice,

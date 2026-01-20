@@ -51,6 +51,23 @@ interface IAmantraLedgerV2 {
         CANCELLED   // 5: Contract cancelled, funds refunded
     }
 
+    /**
+     * @notice Defines who bears bank network transfer fees (BI-FAST/RTGS/interbank)
+     * @dev Set immutably at contract creation (Akad stage) - cannot be changed
+     *
+     * ETHICAL PRINCIPLE: "Tidak boleh ada potongan tersembunyi"
+     * (No hidden deductions allowed)
+     *
+     * @param PLATFORM  AMANTRA absorbs all bank transfer fees from platformFee
+     * @param SELLER    Seller bears bank transfer fees (deducted from sellerAmount)
+     * @param BUYER     Buyer pays additional network fee (included in escrow amount)
+     */
+    enum NetworkFeeBearer {
+        PLATFORM,   // 0: AMANTRA pays all bank transfer fees
+        SELLER,     // 1: Seller bears bank transfer fees
+        BUYER       // 2: Buyer pays additional network fee (shown upfront)
+    }
+
     // ============================================
     // Structs
     // ============================================
@@ -58,16 +75,26 @@ interface IAmantraLedgerV2 {
     /**
      * @notice Immutable fee information set at contract creation
      * @dev Fee structure follows Islamic finance (Akad) principles - cannot be modified
+     *
+     * AKAD DISCLOSURE: All fees must be declared at contract creation and shown to all parties.
+     * "Biaya transfer bank (jika ada) ditanggung oleh: [PLATFORM/PENJUAL/PEMBELI]"
+     *
      * @param bps Fee in basis points (1 bps = 0.01%), max 500 bps (5%)
      * @param platformFee Absolute platform fee amount in smallest currency unit
      * @param sellerAmount Net amount seller will receive after fees
      * @param mediatorFee Optional mediator fee amount
+     * @param networkFeeBearer Who bears bank network transfer fees (immutable)
+     * @param estimatedNetworkFee Estimated bank network fee at time of akad (for disclosure)
+     * @param akadStatementHash Hash of the signed akad statement including fee disclosure
      */
     struct FeeInfo {
         uint16 bps;
         uint256 platformFee;
         uint256 sellerAmount;
         uint256 mediatorFee;
+        NetworkFeeBearer networkFeeBearer;
+        uint256 estimatedNetworkFee;
+        bytes32 akadStatementHash;
     }
 
     /**
@@ -132,6 +159,19 @@ interface IAmantraLedgerV2 {
         uint64 timestamp
     );
 
+    /**
+     * @notice Emitted with full fee disclosure including network fee bearer
+     * @dev This event provides complete akad-compliant fee transparency
+     */
+    event FeeDisclosure(
+        bytes32 indexed contractId,
+        NetworkFeeBearer networkFeeBearer,
+        uint256 estimatedNetworkFee,
+        bytes32 akadStatementHash,
+        uint256 mediatorFee,
+        uint64 timestamp
+    );
+
     event StatusTransition(
         bytes32 indexed contractId,
         Status indexed oldStatus,
@@ -165,6 +205,21 @@ interface IAmantraLedgerV2 {
         uint256 platformFee,
         uint256 mediatorFee,
         address settledBy,
+        uint64 timestamp
+    );
+
+    /**
+     * @notice Emitted with complete settlement breakdown including network fees
+     * @dev Provides full audit trail for bank fee handling
+     */
+    event SettlementNetworkFeeRecord(
+        bytes32 indexed contractId,
+        bytes32 indexed settlementRef,
+        NetworkFeeBearer declaredBearer,
+        uint256 actualNetworkFee,
+        uint256 sellerNetReceived,
+        uint256 platformNetReceived,
+        bytes32 bankReceiptHash,
         uint64 timestamp
     );
 
@@ -301,6 +356,20 @@ contract AmantraLedgerV2 is
     /// @notice Version mismatch for optimistic locking
     error VersionMismatch(bytes32 contractId, uint32 expected, uint32 actual);
 
+    /// @notice Akad statement hash is required for contract creation
+    error AkadStatementRequired();
+
+    /// @notice Platform fee insufficient to cover network transfer costs
+    error InsufficientPlatformFeeForNetworkCost(uint256 platformFee, uint256 estimatedNetworkFee);
+
+    /// @notice Network fee policy violated during settlement
+    error NetworkFeePolicyViolation(
+        NetworkFeeBearer declaredBearer,
+        uint256 expectedAmount,
+        uint256 actualAmount,
+        string reason
+    );
+
     // ============================================
     // Modifiers
     // ============================================
@@ -404,8 +473,12 @@ contract AmantraLedgerV2 is
     // ============================================
 
     /**
-     * @notice Creates a new contract record in the ledger
+     * @notice Creates a new contract record in the ledger with full fee disclosure
      * @dev Fee structure is immutable after creation (Akad-safe)
+     *
+     * AKAD PRINCIPLE: "Tidak boleh ada potongan tersembunyi"
+     * All fees including network transfer fees must be declared at creation.
+     *
      * @param contractId Unique contract identifier (UUID hash)
      * @param contractNumber Human-readable contract number
      * @param seller Seller identifier hash
@@ -415,11 +488,16 @@ contract AmantraLedgerV2 is
      * @param platformFee Absolute platform fee
      * @param sellerAmount Net amount for seller
      * @param mediatorFee Optional mediator fee
+     * @param networkFeeBearer Who bears bank network transfer fees (PLATFORM/SELLER/BUYER)
+     * @param estimatedNetworkFee Estimated bank network fee for disclosure
+     * @param akadStatementHash Hash of signed akad statement with fee disclosure
      *
      * Requirements:
      * - Contract ID must not exist
      * - Fee must not exceed MAX_FEE_BPS
      * - platformFee + sellerAmount + mediatorFee must equal totalAmount
+     * - If networkFeeBearer is PLATFORM, platformFee must cover estimatedNetworkFee
+     * - akadStatementHash must not be zero (ensures disclosure was signed)
      * - Caller must have OPERATOR_ROLE
      * - Contract must not be paused
      */
@@ -432,7 +510,10 @@ contract AmantraLedgerV2 is
         uint16 feeBps,
         uint256 platformFee,
         uint256 sellerAmount,
-        uint256 mediatorFee
+        uint256 mediatorFee,
+        NetworkFeeBearer networkFeeBearer,
+        uint256 estimatedNetworkFee,
+        bytes32 akadStatementHash
     )
         external
         onlyRole(OPERATOR_ROLE)
@@ -459,6 +540,16 @@ contract AmantraLedgerV2 is
             revert InvalidFeeCalculation(totalAmount, platformFee, sellerAmount);
         }
 
+        // AKAD SAFETY: Ensure akad statement was signed (hash must not be zero)
+        if (akadStatementHash == bytes32(0)) {
+            revert AkadStatementRequired();
+        }
+
+        // NETWORK FEE VALIDATION: If platform bears fees, platformFee must be sufficient
+        if (networkFeeBearer == NetworkFeeBearer.PLATFORM && platformFee < estimatedNetworkFee) {
+            revert InsufficientPlatformFeeForNetworkCost(platformFee, estimatedNetworkFee);
+        }
+
         // Create contract with immutable fee structure
         uint64 timestamp = uint64(block.timestamp);
 
@@ -473,7 +564,10 @@ contract AmantraLedgerV2 is
                 bps: feeBps,
                 platformFee: platformFee,
                 sellerAmount: sellerAmount,
-                mediatorFee: mediatorFee
+                mediatorFee: mediatorFee,
+                networkFeeBearer: networkFeeBearer,
+                estimatedNetworkFee: estimatedNetworkFee,
+                akadStatementHash: akadStatementHash
             }),
             escrowReference: bytes32(0),
             createdAt: timestamp,
@@ -493,6 +587,16 @@ contract AmantraLedgerV2 is
             feeBps,
             platformFee,
             sellerAmount,
+            timestamp
+        );
+
+        // Emit separate fee disclosure event for complete transparency
+        emit FeeDisclosure(
+            contractId,
+            networkFeeBearer,
+            estimatedNetworkFee,
+            akadStatementHash,
+            mediatorFee,
             timestamp
         );
     }
@@ -584,20 +688,36 @@ contract AmantraLedgerV2 is
     }
 
     /**
-     * @notice Marks a contract as settled after fund distribution
+     * @notice Marks a contract as settled after fund distribution with network fee audit
+     * @dev Records complete settlement breakdown including actual network fees
+     *
+     * AKAD COMPLIANCE: This function creates immutable proof that:
+     * 1. Settlement followed the declared networkFeeBearer policy
+     * 2. Actual network fees are recorded for audit
+     * 3. Net amounts received by each party are documented
+     *
      * @param contractId Contract identifier
      * @param settlementRef Bank settlement reference
      * @param transactionRef Unique transaction reference for idempotency
+     * @param actualNetworkFee Actual bank network fee charged (from bank receipt)
+     * @param sellerNetReceived Net amount seller actually received after bank fees
+     * @param platformNetReceived Net amount platform actually received after bank fees
+     * @param bankReceiptHash Hash of bank transfer receipts for audit trail
      *
      * Requirements:
      * - Contract must exist and be in VERIFIED status
      * - Transaction must not have been processed before
      * - Caller must be oracleMultisig (settlement requires multisig authority)
+     * - Net amounts must align with declared networkFeeBearer policy
      */
     function markSettled(
         bytes32 contractId,
         bytes32 settlementRef,
-        bytes32 transactionRef
+        bytes32 transactionRef,
+        uint256 actualNetworkFee,
+        uint256 sellerNetReceived,
+        uint256 platformNetReceived,
+        bytes32 bankReceiptHash
     )
         external
         onlyOracleMultisig
@@ -608,9 +728,20 @@ contract AmantraLedgerV2 is
     {
         Contract storage c = _contracts[contractId];
 
+        // NETWORK FEE POLICY ENFORCEMENT
+        // Validate that net amounts align with declared network fee bearer
+        _validateNetworkFeePolicy(
+            c.feeInfo,
+            actualNetworkFee,
+            sellerNetReceived,
+            platformNetReceived
+        );
+
         _transition(contractId, c.status, Status.SETTLED, transactionRef);
 
         totalSettledValue += c.totalAmount;
+
+        uint64 timestamp = uint64(block.timestamp);
 
         emit SettlementMarked(
             contractId,
@@ -619,8 +750,65 @@ contract AmantraLedgerV2 is
             c.feeInfo.platformFee,
             c.feeInfo.mediatorFee,
             msg.sender,
-            uint64(block.timestamp)
+            timestamp
         );
+
+        // Emit detailed network fee record for complete audit trail
+        emit SettlementNetworkFeeRecord(
+            contractId,
+            settlementRef,
+            c.feeInfo.networkFeeBearer,
+            actualNetworkFee,
+            sellerNetReceived,
+            platformNetReceived,
+            bankReceiptHash,
+            timestamp
+        );
+    }
+
+    /**
+     * @notice Validates that settlement amounts comply with declared network fee policy
+     * @dev Internal function to enforce akad-compliant network fee handling
+     * @param feeInfo Contract's immutable fee information
+     * @param actualNetworkFee Actual network fee charged by bank
+     * @param sellerNetReceived Net amount seller received
+     * @param platformNetReceived Net amount platform received
+     */
+    function _validateNetworkFeePolicy(
+        FeeInfo memory feeInfo,
+        uint256 actualNetworkFee,
+        uint256 sellerNetReceived,
+        uint256 platformNetReceived
+    ) internal pure {
+        if (feeInfo.networkFeeBearer == NetworkFeeBearer.PLATFORM) {
+            // Platform bears fees: seller must receive FULL sellerAmount
+            // Platform receives platformFee - actualNetworkFee
+            if (sellerNetReceived < feeInfo.sellerAmount) {
+                revert NetworkFeePolicyViolation(
+                    feeInfo.networkFeeBearer,
+                    feeInfo.sellerAmount,
+                    sellerNetReceived,
+                    "Seller must receive full amount when PLATFORM bears network fees"
+                );
+            }
+        } else if (feeInfo.networkFeeBearer == NetworkFeeBearer.SELLER) {
+            // Seller bears fees: seller receives sellerAmount - actualNetworkFee
+            // Allow for slight variance due to bank fee fluctuation (max 1%)
+            uint256 expectedSellerNet = feeInfo.sellerAmount > actualNetworkFee
+                ? feeInfo.sellerAmount - actualNetworkFee
+                : 0;
+            uint256 tolerance = feeInfo.sellerAmount / 100; // 1% tolerance
+
+            if (sellerNetReceived < expectedSellerNet - tolerance) {
+                revert NetworkFeePolicyViolation(
+                    feeInfo.networkFeeBearer,
+                    expectedSellerNet,
+                    sellerNetReceived,
+                    "Seller net amount exceeds declared network fee deduction"
+                );
+            }
+        }
+        // For BUYER: Network fee was paid separately at funding, no validation needed at settlement
     }
 
     /**

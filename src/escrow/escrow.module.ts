@@ -39,6 +39,7 @@ export * from './domain/settlement-status.enum';
 export * from './domain/split-payment.value';
 export * from './domain/escrow-account.entity';
 export * from './domain/settlement.entity';
+export * from './domain/network-fee.types';
 
 // Port exports
 export * from './ports/bank-escrow.port';
