@@ -8,9 +8,7 @@ const nextConfig = {
   images: {
     domains: ['gateway.pinata.cloud', 'ipfs.io'],
   },
-  experimental: {
-    serverActions: true,
-  },
+  // serverActions is enabled by default in Next.js 14
   headers: async () => [
     {
       source: '/(.*)',

@@ -2,10 +2,9 @@
   "common": {
     "appName": "AMANTRA",
     "tagline": "Safe and Prosperous",
-    "description": "A digital muamalah ecosystem that is secure, just, transparent, sharia-compliant, and sustainable across generations.",
     "loading": "Loading...",
     "error": "An error occurred",
-    "retry": "Retry",
+    "retry": "Try again",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "save": "Save",
@@ -13,426 +12,369 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "search": "Search",
-    "filter": "Filter",
-    "export": "Export",
-    "download": "Download",
-    "upload": "Upload",
     "view": "View",
-    "edit": "Edit",
-    "delete": "Delete",
-    "close": "Close",
-    "open": "Open",
-    "yes": "Yes",
-    "no": "No",
-    "all": "All",
-    "none": "None",
-    "selectLanguage": "Select Language",
-    "darkMode": "Dark Mode",
-    "lightMode": "Light Mode",
-    "connectWallet": "Connect Wallet",
-    "disconnectWallet": "Disconnect Wallet",
-    "walletConnected": "Wallet Connected"
+    "viewAll": "View All"
   },
   "nav": {
     "home": "Home",
     "about": "About",
-    "howItWorks": "How It Works",
+    "howItWorks": "How it Works",
     "shariaPrinciples": "Sharia Principles",
     "governance": "Governance",
     "transparency": "Transparency",
-    "dashboard": "Dashboard",
-    "contracts": "Contracts",
-    "disputes": "Disputes",
-    "arbitration": "Arbitration",
-    "settings": "Settings",
-    "help": "Help"
+    "dashboard": "Dashboard"
   },
-  "roles": {
-    "user": "User",
-    "buyer": "Buyer",
-    "seller": "Seller",
-    "operator": "Operator",
-    "oracle": "Oracle",
-    "arbitrator": "Arbitrator",
-    "majelis": "Arbitration Council",
-    "hisbah": "Hisbah Council",
-    "mahkamahBanding": "Appellate Court",
-    "backup": "Emergency Backup"
-  },
-  "status": {
-    "created": "Created",
-    "funded": "Funded",
-    "verified": "Verified",
-    "settled": "Settled",
-    "disputed": "Disputed",
-    "cancelled": "Cancelled",
-    "pending": "Pending",
-    "active": "Active",
-    "completed": "Completed",
-    "failed": "Failed"
-  },
-  "home": {
-    "hero": {
-      "title": "Safe and Fair Digital Muamalah",
-      "subtitle": "Sharia-compliant escrow platform with digital arbitration, hisbah oversight, and blockchain transparency.",
-      "cta": "Get Started",
-      "learnMore": "Learn More"
+  "hero": {
+    "badge": "Digital Muamalah Ecosystem",
+    "title": "Digital Transactions that are",
+    "titleHighlight": "Safe and Fair",
+    "subtitle": "Sharia-compliant escrow platform with digital arbitration, hisbah oversight, and blockchain transparency for trusted transactions.",
+    "cta": {
+      "primary": "Get Started",
+      "secondary": "Learn How it Works"
     },
-    "features": {
-      "title": "Why AMANTRA?",
-      "escrow": {
-        "title": "Secure Escrow",
-        "description": "Funds are held in bank with segregated accounts, never commingled or used for profit."
-      },
-      "arbitration": {
-        "title": "Fair Arbitration",
-        "description": "Independent tribunal with timelock protection, no unilateral decisions can be immediately executed."
-      },
-      "oversight": {
-        "title": "Hisbah Oversight",
-        "description": "Supervisory board with veto power to prevent injustice and ensure fairness."
-      },
-      "transparency": {
-        "title": "Blockchain Transparency",
-        "description": "All transactions recorded on blockchain, publicly auditable at any time."
-      },
-      "continuity": {
-        "title": "Sustainable",
-        "description": "Dead man switch and succession protocol ensure the system continues across generations."
-      },
-      "sharia": {
-        "title": "Sharia Compliant",
-        "description": "Built on principles of trust, justice, and prohibition of riba according to Islamic jurisprudence."
-      }
-    },
-    "stats": {
-      "contracts": "Total Contracts",
-      "settled": "Value Settled",
-      "disputes": "Disputes Resolved",
-      "uptime": "System Uptime"
+    "trust": {
+      "shariaCompliant": "100% Sharia Compliant",
+      "bankGrade": "Bank-Grade Security",
+      "zeroSPOF": "Zero Single Point of Failure"
     }
   },
-  "about": {
-    "title": "About AMANTRA",
-    "mission": {
-      "title": "Our Mission",
-      "description": "To provide digital muamalah infrastructure that guarantees fund security, process fairness, and rights continuity across generations."
+  "stats": {
+    "shariaCompliant": "Sharia Compliance",
+    "multisigRequired": "Multisig Required",
+    "systemAvailability": "System Availability",
+    "singlePointOfFailure": "Single Point of Failure"
+  },
+  "features": {
+    "badge": "Key Features",
+    "title": "Why Choose AMANTRA?",
+    "subtitle": "Comprehensive platform for secure, fair, and Sharia-compliant digital transactions.",
+    "digitalContract": {
+      "title": "Digital Contracts",
+      "description": "Create and manage digital contracts with blockchain-verified hashes for document integrity."
     },
-    "principles": {
-      "title": "Core Principles",
-      "amanah": {
-        "title": "Amanah (Trust)",
-        "description": "Entrusted funds are sacred trusts that must never be misused."
-      },
-      "adl": {
-        "title": "'Adl (Justice)",
-        "description": "Every decision must be fair to all parties without discrimination."
-      },
-      "hisbah": {
-        "title": "Hisbah (Oversight)",
-        "description": "No power without oversight, no decision without accountability."
-      },
-      "shura": {
-        "title": "Shura (Consultation)",
-        "description": "Important decisions are made through multisig consensus, not unilateral action."
-      },
-      "masuliyyah": {
-        "title": "Mas'uliyyah (Accountability)",
-        "description": "Every action is recorded and auditable for accountability."
-      },
-      "rahmah": {
-        "title": "Rahmah (Mercy)",
-        "description": "The system is designed to facilitate, not burden users."
-      }
+    "escrow": {
+      "title": "Secure Escrow",
+      "description": "Funds secured in multi-signature wallet with layered oversight, not used for profit."
+    },
+    "arbitration": {
+      "title": "Fair Arbitration",
+      "description": "Independent council with 3 trained arbitrators for fair and swift dispute resolution."
+    },
+    "hisbah": {
+      "title": "Hisbah Oversight",
+      "description": "Independent oversight body with veto power to prevent injustice and ensure fairness."
+    },
+    "governance": {
+      "title": "Decentralized Governance",
+      "description": "5-layer multisig system with dead man switch to ensure system continuity."
+    },
+    "zeroSPOF": {
+      "title": "Zero Single Point of Failure",
+      "description": "No single person, key, server, or institution can bring down the system."
+    }
+  },
+  "principles": {
+    "badge": "Sharia Principles",
+    "title": "Built on Islamic Values",
+    "subtitle": "Every aspect of AMANTRA is designed to fulfill Islamic muamalah principles.",
+    "amanah": {
+      "title": "Amanah (Trust)",
+      "description": "Maintaining trust through full transparency and layered security."
+    },
+    "adl": {
+      "title": "'Adl (Justice)",
+      "description": "Fair dispute resolution through independent arbitration council."
+    },
+    "hisbah": {
+      "title": "Hisbah (Oversight)",
+      "description": "Active monitoring to prevent injustice and ensure compliance."
+    },
+    "shura": {
+      "title": "Shura (Consultation)",
+      "description": "Important decisions through consultation with multisig system."
     }
   },
   "howItWorks": {
+    "badge": "How it Works",
     "title": "How AMANTRA Works",
-    "steps": {
-      "create": {
-        "title": "1. Create Contract",
-        "description": "Buyer and seller agree on clear contract terms, including amount, goods/services description, and deadline."
-      },
-      "fund": {
-        "title": "2. Escrow Funding",
-        "description": "Buyer sends funds to bank escrow account. Funds are held safely until transaction completes."
-      },
-      "verify": {
-        "title": "3. Verification",
-        "description": "After goods/services received, buyer confirms or files a dispute if there are issues."
-      },
-      "settle": {
-        "title": "4. Settlement",
-        "description": "Funds are released to seller if all goes well, or refunded if cancelled."
-      },
-      "dispute": {
-        "title": "5. Dispute Resolution",
-        "description": "If disputed, the Arbitration Council reviews evidence and issues a fair decision."
-      }
+    "subtitle": "Simple process for secure and trusted transactions.",
+    "learnMore": "Learn More",
+    "step1": {
+      "title": "Create Contract",
+      "description": "Define terms and conditions with the other party."
+    },
+    "step2": {
+      "title": "Fund Escrow",
+      "description": "Buyer deposits funds to multisig-protected escrow."
+    },
+    "step3": {
+      "title": "Seller Delivers",
+      "description": "Seller delivers goods/services and uploads proof."
+    },
+    "step4": {
+      "title": "Complete",
+      "description": "Buyer confirms, funds auto-release to seller."
     }
   },
-  "user": {
-    "dashboard": {
-      "title": "My Dashboard",
-      "welcome": "Welcome back",
+  "cta": {
+    "title": "Ready for Secure Transactions?",
+    "subtitle": "Join the digital muamalah ecosystem that's safe, fair, and Sharia-compliant.",
+    "primary": "Open Dashboard",
+    "secondary": "Contact Us"
+  },
+  "about": {
+    "badge": "About Us",
+    "title": "AMANTRA - Safe and Prosperous",
+    "subtitle": "Building a digital muamalah ecosystem that's safe, fair, transparent, and sustainable across generations.",
+    "mission": {
+      "title": "Our Mission",
+      "description": "Provide Sharia-compliant digital transaction infrastructure that protects all parties' rights and ensures justice in every dispute."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "description": "Become the global standard for Sharia-based digital transactions with governance that cannot be corrupted by any single party."
+    },
+    "values": {
+      "badge": "Values",
+      "title": "Values We Uphold",
+      "subtitle": "Every decision is based on Islamic muamalah values."
+    },
+    "journey": {
+      "badge": "Journey",
+      "title": "Our Journey"
+    },
+    "architecture": {
+      "badge": "Architecture",
+      "title": "Hybrid Architecture",
+      "subtitle": "Combining the strengths of Web2, Web3, and traditional arbitration systems."
+    }
+  },
+  "sharia": {
+    "badge": "Sharia Principles",
+    "title": "Sharia Principles",
+    "subtitle": "AMANTRA is built on a strong foundation of Islamic finance principles."
+  },
+  "status": {
+    "active": "Active",
+    "completed": "Completed",
+    "disputed": "Disputed",
+    "pendingDelivery": "Pending Delivery",
+    "pendingFunding": "Pending Funding"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "subtitle": "Manage your contracts and transactions",
+    "createContract": "Create New Contract",
+    "nav": {
+      "overview": "Overview",
+      "contracts": "Contracts",
+      "disputes": "Disputes",
+      "arbitration": "Arbitration",
+      "history": "History",
+      "settings": "Settings"
+    },
+    "wallet": {
+      "notConnected": "Wallet not connected",
+      "connect": "Connect"
+    },
+    "connectWallet": {
+      "title": "Connect Your Wallet",
+      "description": "To access the dashboard, please connect your Web3 wallet first.",
+      "button": "Connect Wallet"
+    },
+    "stats": {
+      "totalContracts": "Total Contracts",
       "activeContracts": "Active Contracts",
-      "pendingActions": "Pending Actions",
-      "recentActivity": "Recent Activity",
-      "totalValue": "Total Value"
+      "escrowBalance": "Escrow Balance",
+      "disputes": "Disputes",
+      "thisMonth": "this month",
+      "completed": "Completed",
+      "secured": "Secured in escrow",
+      "viewDisputes": "View disputes"
     },
-    "contracts": {
-      "title": "My Contracts",
-      "create": "Create New Contract",
-      "noContracts": "No contracts yet",
-      "createFirst": "Create your first contract",
-      "details": "Contract Details",
-      "timeline": "Timeline",
-      "evidence": "Evidence",
-      "actions": "Actions"
+    "recentContracts": {
+      "title": "Recent Contracts",
+      "description": "Latest contracts created or updated"
     },
-    "createContract": {
+    "pendingActions": {
+      "title": "Pending Actions",
+      "description": "Actions requiring your attention",
+      "confirmDelivery": "Confirm Delivery",
+      "respondDispute": "Respond to Dispute",
+      "dueIn": "Due:",
+      "empty": "No pending actions"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newContract": "New Contract",
+      "viewContracts": "View Contracts",
+      "manageDisputes": "Manage Disputes",
+      "viewHistory": "View History"
+    }
+  },
+  "contracts": {
+    "title": "My Contracts",
+    "subtitle": "Manage all your digital contracts",
+    "createNew": "Create Contract",
+    "searchPlaceholder": "Search contracts...",
+    "filter": {
+      "all": "All",
+      "allRoles": "All Roles",
+      "asBuyer": "As Buyer",
+      "asSeller": "As Seller"
+    },
+    "asBuyer": "Buyer",
+    "asSeller": "Seller",
+    "deadline": "Deadline",
+    "daysRemaining": "days remaining",
+    "overdue": "Overdue",
+    "empty": {
+      "title": "No Contracts Yet",
+      "description": "Create your first contract to start secure transactions."
+    },
+    "new": {
       "title": "Create New Contract",
-      "step1": "Basic Information",
-      "step2": "Transaction Details",
-      "step3": "Contract Terms",
-      "step4": "Confirmation",
-      "counterparty": "Counterparty",
-      "amount": "Amount",
-      "description": "Description",
-      "deadline": "Deadline",
-      "terms": "Terms and Conditions"
-    },
-    "dispute": {
-      "title": "File Dispute",
-      "reason": "Reason for Dispute",
-      "evidence": "Upload Evidence",
-      "evidenceHelp": "Upload documents, photos, or other evidence supporting your claim.",
-      "submit": "Submit Dispute",
-      "warning": "Filing a dispute will freeze escrow funds until a decision is made."
+      "subtitle": "Follow these steps to create a secure digital contract",
+      "steps": {
+        "basic": "Basic Info",
+        "parties": "Parties & Terms",
+        "milestones": "Milestones",
+        "review": "Review"
+      },
+      "basic": {
+        "title": "Basic Contract Information",
+        "description": "Enter basic information about your contract",
+        "role": "Your Role",
+        "buyerDesc": "You are buying and paying",
+        "sellerDesc": "You are selling and delivering",
+        "contractTitle": "Contract Title",
+        "titlePlaceholder": "Example: E-commerce Website Development",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe the contract details...",
+        "akadType": "Contract Type"
+      },
+      "parties": {
+        "title": "Parties and Terms",
+        "description": "Specify the other party and contract terms",
+        "sellerAddress": "Seller Wallet Address",
+        "buyerAddress": "Buyer Wallet Address",
+        "addressHint": "Enter a valid Ethereum wallet address",
+        "amount": "Payment Amount",
+        "deadline": "Deadline",
+        "terms": "Additional Terms and Conditions",
+        "termsPlaceholder": "Add special terms if needed..."
+      },
+      "milestones": {
+        "title": "Payment Milestones",
+        "description": "Define milestones for staged payments",
+        "descriptionPlaceholder": "Milestone description...",
+        "addMilestone": "Add Milestone",
+        "total": "Total",
+        "totalMustBe100": "Total milestone percentage must be 100%",
+        "documents": "Supporting Documents"
+      },
+      "review": {
+        "title": "Contract Review",
+        "description": "Review all information before creating the contract",
+        "contractTitle": "Contract Title",
+        "akadType": "Contract Type",
+        "yourRole": "Your Role",
+        "amount": "Amount",
+        "counterparty": "Counterparty",
+        "milestones": "Milestones",
+        "shariaNotice": {
+          "title": "Sharia Compliance Notice",
+          "description": "This contract will be verified to ensure compliance with Islamic sharia principles."
+        }
+      },
+      "submit": "Create Contract"
     }
   },
   "majelis": {
-    "dashboard": {
-      "title": "Arbitration Council Dashboard",
-      "pendingCases": "Pending Cases",
-      "activeReview": "Under Review",
-      "awaitingDecision": "Awaiting Decision",
-      "completed": "Completed"
+    "title": "Majelis Dashboard",
+    "subtitle": "Arbitration panel for reviewing and deciding disputes",
+    "stats": {
+      "assignedCases": "Assigned Cases",
+      "pendingReview": "Pending Review",
+      "completedMonth": "Completed This Month",
+      "avgResolution": "Avg Resolution Time"
     },
-    "caseQueue": {
-      "title": "Case Queue",
-      "priority": "Priority",
-      "dateReceived": "Date Received",
-      "value": "Value",
-      "status": "Status",
-      "assignTo": "Assign To"
+    "assignedCases": {
+      "title": "Assigned Cases",
+      "description": "Disputes requiring your review and decision"
     },
-    "review": {
-      "title": "Case Review",
-      "evidenceBuyer": "Buyer Evidence",
-      "evidenceSeller": "Seller Evidence",
-      "contractTerms": "Contract Terms",
-      "timeline": "Event Timeline",
-      "notes": "Internal Notes"
+    "recentDecisions": {
+      "title": "Recent Decisions",
+      "description": "History of decisions you have made"
     },
-    "decision": {
-      "title": "Decision Draft",
-      "summary": "Case Summary",
-      "findings": "Findings",
-      "ruling": "Ruling",
-      "resolution": "Resolution Type",
-      "refundBuyer": "Refund to Buyer",
-      "paySeller": "Pay to Seller",
-      "customSplit": "Custom Split",
-      "continueSettlement": "Continue Settlement"
-    },
-    "multisig": {
-      "title": "Multisig Signing",
-      "signaturesRequired": "Signatures Required",
-      "signaturesCurrent": "Current Signatures",
-      "sign": "Sign",
-      "pendingSignatures": "Pending Signatures",
-      "allSigned": "All Signed"
-    },
-    "timelock": {
-      "title": "Timelock Countdown",
-      "remaining": "Time Remaining",
-      "executable": "Executable",
-      "hours": "hours",
-      "minutes": "minutes",
-      "seconds": "seconds"
+    "guidelines": {
+      "title": "Arbitrator Guidelines",
+      "description": "Principles to follow when making decisions"
     }
   },
   "hisbah": {
-    "dashboard": {
-      "title": "Hisbah Council Dashboard",
-      "systemHealth": "System Health",
-      "pendingApprovals": "Pending Approvals",
-      "recentActions": "Recent Actions",
-      "alerts": "Alerts"
+    "title": "Hisbah Dashboard",
+    "subtitle": "Oversight panel for monitoring compliance and activity",
+    "stats": {
+      "monitored": "Monitored",
+      "activeAlerts": "Active Alerts",
+      "complianceRate": "Compliance Rate",
+      "pendingReviews": "Pending Reviews"
     },
-    "oversight": {
-      "title": "Oversight Panel",
-      "freezeBank": "Freeze Bank",
-      "vetoDecision": "Veto Decision",
-      "pauseSystem": "Pause System",
-      "approveSuccession": "Approve Succession",
-      "approveUpgrade": "Approve Upgrade"
+    "alerts": {
+      "title": "Active Alerts",
+      "description": "Suspicious activities requiring attention"
     },
-    "appeals": {
-      "title": "Appeal Oversight",
-      "pendingAppeals": "Pending Appeals",
-      "reviewAppeal": "Review Appeal",
-      "escalate": "Escalate to Appellate Court"
+    "activity": {
+      "title": "Recent Activity",
+      "description": "Real-time system activity log"
     },
-    "impeachment": {
-      "title": "Impeachment Controls",
-      "initiateImpeachment": "Initiate Impeachment",
-      "targetRole": "Target Role",
-      "reason": "Reason",
-      "evidence": "Supporting Evidence"
-    },
-    "emergency": {
-      "title": "Emergency Intervention",
-      "activateEmergency": "Activate Emergency Mode",
-      "deactivateEmergency": "Deactivate Emergency Mode",
-      "currentStatus": "Current Status"
+    "metrics": {
+      "title": "Compliance Metrics",
+      "description": "System performance indicators"
     }
   },
-  "operator": {
-    "dashboard": {
-      "title": "Operator Dashboard",
-      "systemStatus": "System Status",
-      "activeContracts": "Active Contracts",
-      "pendingSettlements": "Pending Settlements",
-      "bankHealth": "Bank Health"
+  "hashVerifier": {
+    "title": "Document Hash Verifier",
+    "description": "Verify document integrity by comparing hashes",
+    "uploadFile": "Upload File",
+    "uploadHint": "Click or drag file to upload",
+    "calculatedHash": "Calculated Hash",
+    "expectedHash": "Expected Hash",
+    "fromContract": "From contract",
+    "calculating": "Calculating...",
+    "verify": "Verify",
+    "result": {
+      "match": {
+        "title": "Hash Match!",
+        "description": "This document is identical to the one stored on blockchain."
+      },
+      "mismatch": {
+        "title": "Hash Mismatch",
+        "description": "This document differs from the one stored on blockchain."
+      }
     },
-    "contracts": {
-      "title": "Contract Lifecycle Monitor",
-      "created": "Created",
-      "funded": "Funded",
-      "verified": "Verified",
-      "settled": "Settled"
-    },
-    "bank": {
-      "title": "Bank Escrow Integration",
-      "primaryBank": "Primary Bank",
-      "secondaryBank": "Secondary Bank",
-      "balance": "Balance",
-      "status": "Status",
-      "lastActivity": "Last Activity"
-    },
-    "settlement": {
-      "title": "Settlement Orchestrator",
-      "queue": "Queue",
-      "processing": "Processing",
-      "completed": "Completed",
-      "failed": "Failed"
-    },
-    "health": {
-      "title": "SLA & Health Monitor",
-      "uptime": "Uptime",
-      "responseTime": "Response Time",
-      "errorRate": "Error Rate",
-      "lastHeartbeat": "Last Heartbeat"
-    },
-    "deadManSwitch": {
-      "title": "Dead Man Switch Status",
-      "oracle": "Oracle",
-      "arbitrator": "Arbitrator",
-      "hisbah": "Hisbah",
-      "daysRemaining": "Days Remaining",
-      "lastActivity": "Last Activity",
-      "canTrigger": "Can Trigger"
-    },
-    "succession": {
-      "title": "Succession Timelock Panel",
-      "pendingSuccessions": "Pending Successions",
-      "role": "Role",
-      "newHolder": "New Holder",
-      "timelock": "Timelock",
-      "hisbahApproval": "Hisbah Approval"
-    }
+    "info": "Hash is calculated using SHA-256. Any change to the file will produce a different hash."
   },
-  "governance": {
-    "title": "AMANTRA Governance",
-    "succession": {
-      "title": "Role Succession Proposals",
-      "propose": "Propose Succession",
-      "pending": "Pending",
-      "executed": "Executed",
-      "cancelled": "Cancelled"
-    },
-    "multisig": {
-      "title": "Multisig Status",
-      "role": "Role",
-      "address": "Address",
-      "threshold": "Threshold",
-      "members": "Members",
-      "lastActive": "Last Active"
-    },
-    "termLimit": {
-      "title": "Term Limit Clock",
-      "role": "Role",
-      "started": "Started",
-      "expires": "Expires",
-      "remaining": "Remaining"
-    },
-    "waqf": {
-      "title": "Digital Waqf Charter",
-      "charter": "Charter",
-      "beneficiaries": "Beneficiaries",
-      "trustees": "Trustees"
-    }
+  "timeline": {
+    "title": "Contract Timeline",
+    "description": "History of all on-chain events for the contract",
+    "currentStatus": "Current status"
   },
-  "transparency": {
-    "title": "Transparency Portal",
-    "subtitle": "View all on-chain activity in real-time",
-    "events": {
-      "title": "On-Chain Events",
-      "contractCreated": "Contract Created",
-      "paymentReceived": "Payment Received",
-      "disputeRaised": "Dispute Raised",
-      "resolutionQueued": "Resolution Queued",
-      "settlementCompleted": "Settlement Completed"
-    },
-    "verifier": {
-      "title": "Hash Verifier",
-      "upload": "Upload Document",
-      "verify": "Verify",
-      "match": "Hash Match",
-      "noMatch": "Hash Mismatch",
-      "documentHash": "Document Hash",
-      "onChainHash": "On-Chain Hash"
-    },
-    "explorer": {
-      "title": "Audit Explorer",
-      "searchPlaceholder": "Search by contract ID, address, or hash...",
-      "noResults": "No results found"
-    }
+  "heartbeat": {
+    "title": "Heartbeat Monitor",
+    "description": "Dead Man's Switch status for governance signers",
+    "dayThreshold": "day threshold"
   },
-  "accessibility": {
-    "plainLanguage": "Plain Language Mode",
-    "explainSimple": "Explain Like I'm 12",
-    "voiceReading": "Read Aloud",
-    "highContrast": "High Contrast"
-  },
-  "errors": {
-    "notFound": "Page not found",
-    "unauthorized": "You don't have access to this page",
-    "serverError": "A server error occurred",
-    "networkError": "Network error. Check your connection.",
-    "walletNotConnected": "Please connect your wallet first",
-    "transactionFailed": "Transaction failed",
-    "insufficientFunds": "Insufficient funds"
-  },
-  "success": {
-    "contractCreated": "Contract created successfully",
-    "paymentSent": "Payment sent successfully",
-    "disputeFiled": "Dispute filed successfully",
-    "decisionSigned": "Decision signed successfully",
-    "settlementCompleted": "Settlement completed",
-    "walletConnected": "Wallet connected successfully"
+  "footer": {
+    "tagline": "Digital Muamalah Ecosystem",
+    "description": "Bank-grade digital contract, escrow, and automated settlement platform with Sharia compliance.",
+    "platform": "Platform",
+    "governance": "Governance",
+    "resources": "Resources",
+    "legal": "Legal",
+    "copyright": "Copyright",
+    "allRightsReserved": "All rights reserved"
   }
 }

@@ -2,7 +2,6 @@
   "common": {
     "appName": "AMANTRA",
     "tagline": "Aman dan Sejahtera",
-    "description": "Ekosistem Muamalah Digital yang aman, adil, transparan, sesuai syariah, dan berkelanjutan lintas generasi.",
     "loading": "Memuat...",
     "error": "Terjadi kesalahan",
     "retry": "Coba lagi",
@@ -13,26 +12,8 @@
     "back": "Kembali",
     "next": "Selanjutnya",
     "previous": "Sebelumnya",
-    "search": "Cari",
-    "filter": "Filter",
-    "export": "Ekspor",
-    "download": "Unduh",
-    "upload": "Unggah",
     "view": "Lihat",
-    "edit": "Edit",
-    "delete": "Hapus",
-    "close": "Tutup",
-    "open": "Buka",
-    "yes": "Ya",
-    "no": "Tidak",
-    "all": "Semua",
-    "none": "Tidak ada",
-    "selectLanguage": "Pilih Bahasa",
-    "darkMode": "Mode Gelap",
-    "lightMode": "Mode Terang",
-    "connectWallet": "Hubungkan Dompet",
-    "disconnectWallet": "Putuskan Dompet",
-    "walletConnected": "Dompet Terhubung"
+    "viewAll": "Lihat Semua"
   },
   "nav": {
     "home": "Beranda",
@@ -41,398 +22,359 @@
     "shariaPrinciples": "Prinsip Syariah",
     "governance": "Tata Kelola",
     "transparency": "Transparansi",
-    "dashboard": "Dasbor",
-    "contracts": "Akad",
-    "disputes": "Sengketa",
-    "arbitration": "Arbitrase",
-    "settings": "Pengaturan",
-    "help": "Bantuan"
+    "dashboard": "Dasbor"
   },
-  "roles": {
-    "user": "Pengguna",
-    "buyer": "Pembeli",
-    "seller": "Penjual",
-    "operator": "Operator",
-    "oracle": "Oracle",
-    "arbitrator": "Arbiter",
-    "majelis": "Majelis Arbitrase",
-    "hisbah": "Dewan Hisbah",
-    "mahkamahBanding": "Mahkamah Banding",
-    "backup": "Cadangan Darurat"
-  },
-  "status": {
-    "created": "Dibuat",
-    "funded": "Didanai",
-    "verified": "Diverifikasi",
-    "settled": "Diselesaikan",
-    "disputed": "Disengketakan",
-    "cancelled": "Dibatalkan",
-    "pending": "Menunggu",
-    "active": "Aktif",
-    "completed": "Selesai",
-    "failed": "Gagal"
-  },
-  "home": {
-    "hero": {
-      "title": "Muamalah Digital yang Aman dan Adil",
-      "subtitle": "Platform escrow berbasis syariah dengan arbitrase digital, pengawasan hisbah, dan transparansi blockchain.",
-      "cta": "Mulai Sekarang",
-      "learnMore": "Pelajari Lebih Lanjut"
+  "hero": {
+    "badge": "Ekosistem Muamalah Digital",
+    "title": "Muamalah Digital yang",
+    "titleHighlight": "Aman dan Adil",
+    "subtitle": "Platform escrow berbasis syariah dengan arbitrase digital, pengawasan hisbah, dan transparansi blockchain untuk transaksi yang terpercaya.",
+    "cta": {
+      "primary": "Mulai Sekarang",
+      "secondary": "Pelajari Cara Kerja"
     },
-    "features": {
-      "title": "Mengapa AMANTRA?",
-      "escrow": {
-        "title": "Escrow Aman",
-        "description": "Dana dijaga di bank dengan rekening terpisah, tidak diputar, tidak ditahan untuk keuntungan."
-      },
-      "arbitration": {
-        "title": "Arbitrase Adil",
-        "description": "Majelis independen dengan timelock, tidak ada keputusan sepihak yang bisa langsung dieksekusi."
-      },
-      "oversight": {
-        "title": "Pengawasan Hisbah",
-        "description": "Dewan pengawas dengan kuasa veto untuk mencegah kezaliman dan memastikan keadilan."
-      },
-      "transparency": {
-        "title": "Transparansi Blockchain",
-        "description": "Semua transaksi tercatat di blockchain, dapat diaudit publik kapan saja."
-      },
-      "continuity": {
-        "title": "Berkelanjutan",
-        "description": "Dead man switch dan succession protocol memastikan sistem tetap berjalan lintas generasi."
-      },
-      "sharia": {
-        "title": "Sesuai Syariah",
-        "description": "Dibangun berdasarkan prinsip amanah, keadilan, dan larangan riba sesuai fiqh muamalah."
-      }
-    },
-    "stats": {
-      "contracts": "Total Akad",
-      "settled": "Nilai Diselesaikan",
-      "disputes": "Sengketa Terselesaikan",
-      "uptime": "Waktu Aktif"
+    "trust": {
+      "shariaCompliant": "100% Sesuai Syariah",
+      "bankGrade": "Keamanan Tingkat Bank",
+      "zeroSPOF": "Zero Single Point of Failure"
     }
   },
-  "about": {
-    "title": "Tentang AMANTRA",
-    "mission": {
-      "title": "Misi Kami",
-      "description": "Menyediakan infrastruktur muamalah digital yang menjamin keamanan dana, keadilan proses, dan kelangsungan hak lintas generasi."
+  "stats": {
+    "shariaCompliant": "Kepatuhan Syariah",
+    "multisigRequired": "Multisig Diperlukan",
+    "systemAvailability": "Ketersediaan Sistem",
+    "singlePointOfFailure": "Single Point of Failure"
+  },
+  "features": {
+    "badge": "Fitur Unggulan",
+    "title": "Mengapa Memilih AMANTRA?",
+    "subtitle": "Platform komprehensif untuk transaksi digital yang aman, adil, dan sesuai syariah.",
+    "digitalContract": {
+      "title": "Kontrak Digital",
+      "description": "Buat dan kelola kontrak digital dengan hash terverifikasi di blockchain untuk integritas dokumen."
     },
-    "principles": {
-      "title": "Prinsip Dasar",
-      "amanah": {
-        "title": "Amanah (Kepercayaan)",
-        "description": "Dana yang dititipkan adalah amanah suci yang tidak boleh disalahgunakan."
-      },
-      "adl": {
-        "title": "'Adl (Keadilan)",
-        "description": "Setiap keputusan harus adil bagi semua pihak tanpa diskriminasi."
-      },
-      "hisbah": {
-        "title": "Hisbah (Pengawasan)",
-        "description": "Tidak ada kekuasaan tanpa pengawasan, tidak ada keputusan tanpa pertanggungjawaban."
-      },
-      "shura": {
-        "title": "Shura (Musyawarah)",
-        "description": "Keputusan penting diambil melalui musyawarah multisig, bukan keputusan sepihak."
-      },
-      "masuliyyah": {
-        "title": "Mas'uliyyah (Akuntabilitas)",
-        "description": "Setiap tindakan tercatat dan dapat diaudit untuk pertanggungjawaban."
-      },
-      "rahmah": {
-        "title": "Rahmah (Kasih Sayang)",
-        "description": "Sistem dirancang untuk memudahkan, bukan menyulitkan pengguna."
-      }
+    "escrow": {
+      "title": "Escrow Aman",
+      "description": "Dana dijaga di multi-signature wallet dengan pengawasan berlapis, tidak diputar untuk keuntungan."
+    },
+    "arbitration": {
+      "title": "Arbitrase Adil",
+      "description": "Majelis independen dengan 3 arbiter terlatih untuk penyelesaian sengketa yang adil dan cepat."
+    },
+    "hisbah": {
+      "title": "Pengawasan Hisbah",
+      "description": "Dewan pengawas independen dengan kuasa veto untuk mencegah kezaliman dan memastikan keadilan."
+    },
+    "governance": {
+      "title": "Tata Kelola Terdesentralisasi",
+      "description": "Sistem multisig 5 lapis dengan dead man switch untuk memastikan kontinuitas sistem."
+    },
+    "zeroSPOF": {
+      "title": "Zero Single Point of Failure",
+      "description": "Tidak ada satu orang, kunci, server, atau institusi yang bisa menghentikan sistem."
+    }
+  },
+  "principles": {
+    "badge": "Prinsip Syariah",
+    "title": "Dibangun di Atas Nilai-Nilai Islam",
+    "subtitle": "Setiap aspek AMANTRA dirancang untuk memenuhi prinsip-prinsip muamalah Islam.",
+    "amanah": {
+      "title": "Amanah (Kepercayaan)",
+      "description": "Menjaga kepercayaan dengan transparansi penuh dan keamanan berlapis."
+    },
+    "adl": {
+      "title": "'Adl (Keadilan)",
+      "description": "Penyelesaian sengketa yang adil melalui majelis arbiter independen."
+    },
+    "hisbah": {
+      "title": "Hisbah (Pengawasan)",
+      "description": "Pengawasan aktif untuk mencegah kezaliman dan memastikan kepatuhan."
+    },
+    "shura": {
+      "title": "Shura (Musyawarah)",
+      "description": "Keputusan penting melalui musyawarah dengan sistem multisig."
     }
   },
   "howItWorks": {
+    "badge": "Cara Kerja",
     "title": "Cara Kerja AMANTRA",
-    "steps": {
-      "create": {
-        "title": "1. Buat Akad",
-        "description": "Pembeli dan penjual menyepakati syarat akad dengan jelas, termasuk jumlah, deskripsi barang/jasa, dan tenggat waktu."
-      },
-      "fund": {
-        "title": "2. Dana Escrow",
-        "description": "Pembeli mengirim dana ke rekening escrow bank. Dana dijaga aman hingga transaksi selesai."
-      },
-      "verify": {
-        "title": "3. Verifikasi",
-        "description": "Setelah barang/jasa diterima, pembeli mengkonfirmasi atau mengajukan sengketa jika ada masalah."
-      },
-      "settle": {
-        "title": "4. Penyelesaian",
-        "description": "Dana dilepaskan ke penjual jika semua berjalan baik, atau dikembalikan jika terjadi pembatalan."
-      },
-      "dispute": {
-        "title": "5. Penyelesaian Sengketa",
-        "description": "Jika ada sengketa, Majelis Arbitrase akan meninjau bukti dan memberikan keputusan yang adil."
-      }
+    "subtitle": "Proses sederhana untuk transaksi yang aman dan terpercaya.",
+    "learnMore": "Pelajari Selengkapnya",
+    "step1": {
+      "title": "Buat Kontrak",
+      "description": "Tentukan syarat dan ketentuan kontrak dengan pihak lain."
+    },
+    "step2": {
+      "title": "Dana Escrow",
+      "description": "Pembeli menyetor dana ke escrow yang dijaga multisig."
+    },
+    "step3": {
+      "title": "Penjual Kirim",
+      "description": "Penjual mengirim barang/jasa dan unggah bukti pengiriman."
+    },
+    "step4": {
+      "title": "Selesai",
+      "description": "Pembeli konfirmasi, dana dilepas otomatis ke penjual."
     }
   },
-  "user": {
-    "dashboard": {
-      "title": "Dasbor Saya",
-      "welcome": "Selamat datang kembali",
-      "activeContracts": "Akad Aktif",
-      "pendingActions": "Tindakan Tertunda",
-      "recentActivity": "Aktivitas Terkini",
-      "totalValue": "Total Nilai"
+  "cta": {
+    "title": "Siap Memulai Transaksi yang Aman?",
+    "subtitle": "Bergabunglah dengan ekosistem muamalah digital yang aman, adil, dan sesuai syariah.",
+    "primary": "Buka Dashboard",
+    "secondary": "Hubungi Kami"
+  },
+  "about": {
+    "badge": "Tentang Kami",
+    "title": "AMANTRA - Aman dan Sejahtera",
+    "subtitle": "Membangun ekosistem muamalah digital yang aman, adil, transparan, dan berkelanjutan lintas generasi.",
+    "mission": {
+      "title": "Misi Kami",
+      "description": "Menyediakan infrastruktur transaksi digital yang sesuai syariah, melindungi hak semua pihak, dan memastikan keadilan dalam setiap sengketa."
     },
-    "contracts": {
-      "title": "Akad Saya",
-      "create": "Buat Akad Baru",
-      "noContracts": "Belum ada akad",
-      "createFirst": "Buat akad pertama Anda",
-      "details": "Detail Akad",
-      "timeline": "Linimasa",
-      "evidence": "Bukti",
-      "actions": "Tindakan"
+    "vision": {
+      "title": "Visi Kami",
+      "description": "Menjadi standar global untuk transaksi digital berbasis syariah dengan tata kelola yang tidak bisa dikorupsi oleh satu pihak manapun."
     },
-    "createContract": {
-      "title": "Buat Akad Baru",
-      "step1": "Informasi Dasar",
-      "step2": "Detail Transaksi",
-      "step3": "Syarat Akad",
-      "step4": "Konfirmasi",
-      "counterparty": "Pihak Lawan",
-      "amount": "Jumlah",
-      "description": "Deskripsi",
-      "deadline": "Tenggat Waktu",
-      "terms": "Syarat dan Ketentuan"
+    "values": {
+      "badge": "Nilai-Nilai",
+      "title": "Nilai yang Kami Junjung",
+      "subtitle": "Setiap keputusan didasarkan pada nilai-nilai muamalah Islam."
     },
-    "dispute": {
-      "title": "Ajukan Sengketa",
-      "reason": "Alasan Sengketa",
-      "evidence": "Unggah Bukti",
-      "evidenceHelp": "Unggah dokumen, foto, atau bukti lain yang mendukung klaim Anda.",
-      "submit": "Kirim Sengketa",
-      "warning": "Pengajuan sengketa akan membekukan dana escrow hingga ada keputusan."
+    "journey": {
+      "badge": "Perjalanan",
+      "title": "Perjalanan Kami"
+    },
+    "architecture": {
+      "badge": "Arsitektur",
+      "title": "Arsitektur Hybrid",
+      "subtitle": "Menggabungkan kekuatan Web2, Web3, dan sistem arbitrase tradisional."
+    }
+  },
+  "sharia": {
+    "badge": "Prinsip Syariah",
+    "title": "Prinsip-Prinsip Syariah",
+    "subtitle": "AMANTRA dibangun di atas fondasi prinsip-prinsip keuangan Islam yang kuat."
+  },
+  "status": {
+    "active": "Aktif",
+    "completed": "Selesai",
+    "disputed": "Disengketakan",
+    "pendingDelivery": "Menunggu Pengiriman",
+    "pendingFunding": "Menunggu Dana"
+  },
+  "dashboard": {
+    "welcome": "Selamat Datang",
+    "subtitle": "Kelola kontrak dan transaksi Anda",
+    "createContract": "Buat Kontrak Baru",
+    "nav": {
+      "overview": "Ringkasan",
+      "contracts": "Kontrak",
+      "disputes": "Sengketa",
+      "arbitration": "Arbitrase",
+      "history": "Riwayat",
+      "settings": "Pengaturan"
+    },
+    "wallet": {
+      "notConnected": "Dompet belum terhubung",
+      "connect": "Hubungkan"
+    },
+    "connectWallet": {
+      "title": "Hubungkan Dompet Anda",
+      "description": "Untuk mengakses dashboard, silakan hubungkan dompet Web3 Anda terlebih dahulu.",
+      "button": "Hubungkan Dompet"
+    },
+    "stats": {
+      "totalContracts": "Total Kontrak",
+      "activeContracts": "Kontrak Aktif",
+      "escrowBalance": "Saldo Escrow",
+      "disputes": "Sengketa",
+      "thisMonth": "bulan ini",
+      "completed": "Selesai",
+      "secured": "Diamankan di escrow",
+      "viewDisputes": "Lihat sengketa"
+    },
+    "recentContracts": {
+      "title": "Kontrak Terbaru",
+      "description": "Kontrak terakhir yang dibuat atau diperbarui"
+    },
+    "pendingActions": {
+      "title": "Tindakan Tertunda",
+      "description": "Tindakan yang memerlukan perhatian Anda",
+      "confirmDelivery": "Konfirmasi Pengiriman",
+      "respondDispute": "Tanggapi Sengketa",
+      "dueIn": "Tenggat:",
+      "empty": "Tidak ada tindakan tertunda"
+    },
+    "quickActions": {
+      "title": "Aksi Cepat",
+      "newContract": "Kontrak Baru",
+      "viewContracts": "Lihat Kontrak",
+      "manageDisputes": "Kelola Sengketa",
+      "viewHistory": "Lihat Riwayat"
+    }
+  },
+  "contracts": {
+    "title": "Kontrak Saya",
+    "subtitle": "Kelola semua kontrak digital Anda",
+    "createNew": "Buat Kontrak",
+    "searchPlaceholder": "Cari kontrak...",
+    "filter": {
+      "all": "Semua",
+      "allRoles": "Semua Peran",
+      "asBuyer": "Sebagai Pembeli",
+      "asSeller": "Sebagai Penjual"
+    },
+    "asBuyer": "Pembeli",
+    "asSeller": "Penjual",
+    "deadline": "Tenggat",
+    "daysRemaining": "hari tersisa",
+    "overdue": "Terlambat",
+    "empty": {
+      "title": "Belum Ada Kontrak",
+      "description": "Buat kontrak pertama Anda untuk memulai transaksi yang aman."
+    },
+    "new": {
+      "title": "Buat Kontrak Baru",
+      "subtitle": "Ikuti langkah-langkah berikut untuk membuat kontrak digital yang aman",
+      "steps": {
+        "basic": "Informasi Dasar",
+        "parties": "Pihak & Ketentuan",
+        "milestones": "Milestone",
+        "review": "Tinjauan"
+      },
+      "basic": {
+        "title": "Informasi Dasar Kontrak",
+        "description": "Masukkan informasi dasar tentang kontrak Anda",
+        "role": "Peran Anda",
+        "buyerDesc": "Anda yang membeli dan membayar",
+        "sellerDesc": "Anda yang menjual dan mengirim",
+        "contractTitle": "Judul Kontrak",
+        "titlePlaceholder": "Contoh: Pengembangan Website E-commerce",
+        "description": "Deskripsi",
+        "descriptionPlaceholder": "Jelaskan detail kontrak ini...",
+        "akadType": "Jenis Akad"
+      },
+      "parties": {
+        "title": "Pihak dan Ketentuan",
+        "description": "Tentukan pihak lain dan ketentuan kontrak",
+        "sellerAddress": "Alamat Wallet Penjual",
+        "buyerAddress": "Alamat Wallet Pembeli",
+        "addressHint": "Masukkan alamat wallet Ethereum yang valid",
+        "amount": "Jumlah Pembayaran",
+        "deadline": "Batas Waktu",
+        "terms": "Syarat dan Ketentuan Tambahan",
+        "termsPlaceholder": "Tambahkan syarat khusus jika diperlukan..."
+      },
+      "milestones": {
+        "title": "Milestone Pembayaran",
+        "description": "Tentukan milestone untuk pembayaran bertahap",
+        "descriptionPlaceholder": "Deskripsi milestone...",
+        "addMilestone": "Tambah Milestone",
+        "total": "Total",
+        "totalMustBe100": "Total persentase milestone harus 100%",
+        "documents": "Dokumen Pendukung"
+      },
+      "review": {
+        "title": "Tinjauan Kontrak",
+        "description": "Periksa kembali semua informasi sebelum membuat kontrak",
+        "contractTitle": "Judul Kontrak",
+        "akadType": "Jenis Akad",
+        "yourRole": "Peran Anda",
+        "amount": "Jumlah",
+        "counterparty": "Pihak Lain",
+        "milestones": "Milestone",
+        "shariaNotice": {
+          "title": "Pemberitahuan Kepatuhan Syariah",
+          "description": "Kontrak ini akan diverifikasi untuk memastikan kepatuhan terhadap prinsip-prinsip syariah Islam."
+        }
+      },
+      "submit": "Buat Kontrak"
     }
   },
   "majelis": {
-    "dashboard": {
-      "title": "Dasbor Majelis Arbitrase",
-      "pendingCases": "Kasus Tertunda",
-      "activeReview": "Sedang Ditinjau",
-      "awaitingDecision": "Menunggu Keputusan",
-      "completed": "Selesai"
+    "title": "Dashboard Majelis",
+    "subtitle": "Panel arbitrase untuk meninjau dan memutuskan sengketa",
+    "stats": {
+      "assignedCases": "Kasus Ditugaskan",
+      "pendingReview": "Menunggu Review",
+      "completedMonth": "Selesai Bulan Ini",
+      "avgResolution": "Rata-rata Resolusi"
     },
-    "caseQueue": {
-      "title": "Antrian Kasus",
-      "priority": "Prioritas",
-      "dateReceived": "Tanggal Diterima",
-      "value": "Nilai",
-      "status": "Status",
-      "assignTo": "Tugaskan ke"
+    "assignedCases": {
+      "title": "Kasus yang Ditugaskan",
+      "description": "Sengketa yang memerlukan tinjauan dan keputusan Anda"
     },
-    "review": {
-      "title": "Tinjauan Kasus",
-      "evidenceBuyer": "Bukti Pembeli",
-      "evidenceSeller": "Bukti Penjual",
-      "contractTerms": "Syarat Akad",
-      "timeline": "Linimasa Kejadian",
-      "notes": "Catatan Internal"
+    "recentDecisions": {
+      "title": "Keputusan Terbaru",
+      "description": "Riwayat keputusan yang telah Anda buat"
     },
-    "decision": {
-      "title": "Draf Keputusan",
-      "summary": "Ringkasan Kasus",
-      "findings": "Temuan",
-      "ruling": "Amar Putusan",
-      "resolution": "Jenis Penyelesaian",
-      "refundBuyer": "Kembalikan ke Pembeli",
-      "paySeller": "Bayarkan ke Penjual",
-      "customSplit": "Pembagian Kustom",
-      "continueSettlement": "Lanjutkan Penyelesaian"
-    },
-    "multisig": {
-      "title": "Penandatanganan Multisig",
-      "signaturesRequired": "Tanda Tangan Diperlukan",
-      "signaturesCurrent": "Tanda Tangan Terkumpul",
-      "sign": "Tandatangani",
-      "pendingSignatures": "Menunggu Tanda Tangan",
-      "allSigned": "Semua Telah Menandatangani"
-    },
-    "timelock": {
-      "title": "Countdown Timelock",
-      "remaining": "Waktu Tersisa",
-      "executable": "Dapat Dieksekusi",
-      "hours": "jam",
-      "minutes": "menit",
-      "seconds": "detik"
+    "guidelines": {
+      "title": "Panduan Arbiter",
+      "description": "Prinsip-prinsip yang harus diikuti dalam membuat keputusan"
     }
   },
   "hisbah": {
-    "dashboard": {
-      "title": "Dasbor Dewan Hisbah",
-      "systemHealth": "Kesehatan Sistem",
-      "pendingApprovals": "Persetujuan Tertunda",
-      "recentActions": "Tindakan Terkini",
-      "alerts": "Peringatan"
+    "title": "Dashboard Hisbah",
+    "subtitle": "Panel pengawasan untuk memantau kepatuhan dan aktivitas",
+    "stats": {
+      "monitored": "Dipantau",
+      "activeAlerts": "Peringatan Aktif",
+      "complianceRate": "Tingkat Kepatuhan",
+      "pendingReviews": "Review Tertunda"
     },
-    "oversight": {
-      "title": "Panel Pengawasan",
-      "freezeBank": "Bekukan Bank",
-      "vetoDecision": "Veto Keputusan",
-      "pauseSystem": "Jeda Sistem",
-      "approveSuccession": "Setujui Suksesi",
-      "approveUpgrade": "Setujui Upgrade"
+    "alerts": {
+      "title": "Peringatan Aktif",
+      "description": "Aktivitas mencurigakan yang memerlukan perhatian"
     },
-    "appeals": {
-      "title": "Pengawasan Banding",
-      "pendingAppeals": "Banding Tertunda",
-      "reviewAppeal": "Tinjau Banding",
-      "escalate": "Eskalasi ke Mahkamah Banding"
+    "activity": {
+      "title": "Aktivitas Terbaru",
+      "description": "Log aktivitas sistem real-time"
     },
-    "impeachment": {
-      "title": "Kontrol Pemakzulan",
-      "initiateImpeachment": "Mulai Pemakzulan",
-      "targetRole": "Peran Target",
-      "reason": "Alasan",
-      "evidence": "Bukti Pendukung"
-    },
-    "emergency": {
-      "title": "Intervensi Darurat",
-      "activateEmergency": "Aktifkan Mode Darurat",
-      "deactivateEmergency": "Nonaktifkan Mode Darurat",
-      "currentStatus": "Status Saat Ini"
+    "metrics": {
+      "title": "Metrik Kepatuhan",
+      "description": "Indikator kinerja sistem"
     }
   },
-  "operator": {
-    "dashboard": {
-      "title": "Dasbor Operator",
-      "systemStatus": "Status Sistem",
-      "activeContracts": "Akad Aktif",
-      "pendingSettlements": "Penyelesaian Tertunda",
-      "bankHealth": "Kesehatan Bank"
+  "hashVerifier": {
+    "title": "Verifikasi Hash Dokumen",
+    "description": "Verifikasi integritas dokumen dengan membandingkan hash",
+    "uploadFile": "Unggah File",
+    "uploadHint": "Klik atau seret file untuk diunggah",
+    "calculatedHash": "Hash yang Dihitung",
+    "expectedHash": "Hash yang Diharapkan",
+    "fromContract": "Dari kontrak",
+    "calculating": "Menghitung...",
+    "verify": "Verifikasi",
+    "result": {
+      "match": {
+        "title": "Hash Cocok!",
+        "description": "Dokumen ini identik dengan yang tersimpan di blockchain."
+      },
+      "mismatch": {
+        "title": "Hash Tidak Cocok",
+        "description": "Dokumen ini berbeda dari yang tersimpan di blockchain."
+      }
     },
-    "contracts": {
-      "title": "Monitor Siklus Akad",
-      "created": "Dibuat",
-      "funded": "Didanai",
-      "verified": "Diverifikasi",
-      "settled": "Diselesaikan"
-    },
-    "bank": {
-      "title": "Integrasi Bank Escrow",
-      "primaryBank": "Bank Utama",
-      "secondaryBank": "Bank Cadangan",
-      "balance": "Saldo",
-      "status": "Status",
-      "lastActivity": "Aktivitas Terakhir"
-    },
-    "settlement": {
-      "title": "Orkestrator Penyelesaian",
-      "queue": "Antrian",
-      "processing": "Sedang Diproses",
-      "completed": "Selesai",
-      "failed": "Gagal"
-    },
-    "health": {
-      "title": "Monitor SLA & Kesehatan",
-      "uptime": "Waktu Aktif",
-      "responseTime": "Waktu Respons",
-      "errorRate": "Tingkat Error",
-      "lastHeartbeat": "Detak Jantung Terakhir"
-    },
-    "deadManSwitch": {
-      "title": "Status Dead Man Switch",
-      "oracle": "Oracle",
-      "arbitrator": "Arbitrator",
-      "hisbah": "Hisbah",
-      "daysRemaining": "Hari Tersisa",
-      "lastActivity": "Aktivitas Terakhir",
-      "canTrigger": "Dapat Dipicu"
-    },
-    "succession": {
-      "title": "Panel Timelock Suksesi",
-      "pendingSuccessions": "Suksesi Tertunda",
-      "role": "Peran",
-      "newHolder": "Pemegang Baru",
-      "timelock": "Timelock",
-      "hisbahApproval": "Persetujuan Hisbah"
-    }
+    "info": "Hash dihitung menggunakan SHA-256. Perubahan sekecil apapun pada file akan menghasilkan hash yang berbeda."
   },
-  "governance": {
-    "title": "Tata Kelola AMANTRA",
-    "succession": {
-      "title": "Proposal Suksesi Peran",
-      "propose": "Ajukan Suksesi",
-      "pending": "Tertunda",
-      "executed": "Dieksekusi",
-      "cancelled": "Dibatalkan"
-    },
-    "multisig": {
-      "title": "Status Multisig",
-      "role": "Peran",
-      "address": "Alamat",
-      "threshold": "Ambang Batas",
-      "members": "Anggota",
-      "lastActive": "Terakhir Aktif"
-    },
-    "termLimit": {
-      "title": "Batas Masa Jabatan",
-      "role": "Peran",
-      "started": "Dimulai",
-      "expires": "Berakhir",
-      "remaining": "Tersisa"
-    },
-    "waqf": {
-      "title": "Piagam Waqf Digital",
-      "charter": "Piagam",
-      "beneficiaries": "Penerima Manfaat",
-      "trustees": "Wali Amanah"
-    }
+  "timeline": {
+    "title": "Timeline Kontrak",
+    "description": "Riwayat semua event on-chain untuk kontrak",
+    "currentStatus": "Status saat ini"
   },
-  "transparency": {
-    "title": "Portal Transparansi",
-    "subtitle": "Lihat semua aktivitas on-chain secara real-time",
-    "events": {
-      "title": "Peristiwa On-Chain",
-      "contractCreated": "Akad Dibuat",
-      "paymentReceived": "Pembayaran Diterima",
-      "disputeRaised": "Sengketa Diajukan",
-      "resolutionQueued": "Resolusi Diantrekan",
-      "settlementCompleted": "Penyelesaian Selesai"
-    },
-    "verifier": {
-      "title": "Verifikator Hash",
-      "upload": "Unggah Dokumen",
-      "verify": "Verifikasi",
-      "match": "Hash Cocok",
-      "noMatch": "Hash Tidak Cocok",
-      "documentHash": "Hash Dokumen",
-      "onChainHash": "Hash On-Chain"
-    },
-    "explorer": {
-      "title": "Penjelajah Audit",
-      "searchPlaceholder": "Cari berdasarkan ID akad, alamat, atau hash...",
-      "noResults": "Tidak ada hasil ditemukan"
-    }
+  "heartbeat": {
+    "title": "Monitor Heartbeat",
+    "description": "Status Dead Man's Switch untuk penanda tangan governance",
+    "dayThreshold": "hari batas"
   },
-  "accessibility": {
-    "plainLanguage": "Mode Bahasa Sederhana",
-    "explainSimple": "Jelaskan Seperti Saya Anak 12 Tahun",
-    "voiceReading": "Baca dengan Suara",
-    "highContrast": "Kontras Tinggi"
-  },
-  "errors": {
-    "notFound": "Halaman tidak ditemukan",
-    "unauthorized": "Anda tidak memiliki akses ke halaman ini",
-    "serverError": "Terjadi kesalahan pada server",
-    "networkError": "Kesalahan jaringan. Periksa koneksi Anda.",
-    "walletNotConnected": "Silakan hubungkan dompet Anda terlebih dahulu",
-    "transactionFailed": "Transaksi gagal",
-    "insufficientFunds": "Dana tidak mencukupi"
-  },
-  "success": {
-    "contractCreated": "Akad berhasil dibuat",
-    "paymentSent": "Pembayaran berhasil dikirim",
-    "disputeFiled": "Sengketa berhasil diajukan",
-    "decisionSigned": "Keputusan berhasil ditandatangani",
-    "settlementCompleted": "Penyelesaian berhasil",
-    "walletConnected": "Dompet berhasil terhubung"
+  "footer": {
+    "tagline": "Ekosistem Muamalah Digital",
+    "description": "Platform kontrak digital, escrow, dan penyelesaian otomatis tingkat bank dengan kepatuhan syariah.",
+    "platform": "Platform",
+    "governance": "Tata Kelola",
+    "resources": "Sumber Daya",
+    "legal": "Legal",
+    "copyright": "Hak Cipta",
+    "allRightsReserved": "Seluruh hak dilindungi"
   }
 }
