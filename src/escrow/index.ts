@@ -14,9 +14,14 @@ export {
   SettlementStatus,
   BankTransferStatus,
   EscrowAccountStatus,
-  isValidSettlementTransition,
-  isTerminalSettlementStatus,
-  isValidEscrowAccountTransition,
+  isValidTransition,
+  isTerminalStatus,
+  isFailureStatus,
+  isSafetyBlockedStatus,
+  canBeFrozenByDispute,
+  isBankTransferInProgress,
+  getSafetyStatusDescription,
+  SETTLEMENT_TRANSITIONS,
 } from './domain/settlement-status.enum';
 
 export {
@@ -70,7 +75,17 @@ export {
 
 // Services
 export { EscrowAccountService } from './services/escrow-account.service';
-export { SettlementOrchestratorService } from './services/settlement-orchestrator.service';
+export {
+  SettlementOrchestratorService,
+  InitiateSettlementRequest,
+  SettlementResult,
+  SettlementInitiatedEvent,
+  SettlementCompletedEvent,
+  SettlementFailedEvent,
+  SettlementBlockedEvent,
+  SettlementFrozenByDisputeEvent,
+  EscrowFrozenDueToDisputeEvent,
+} from './services/settlement-orchestrator.service';
 
 // Blockchain
 export {
@@ -81,6 +96,14 @@ export {
   PayoutInfo,
   MarkSettledResult,
 } from './blockchain/ledger-sync.service';
+
+export {
+  DisputeListenerService,
+  DisputeOpenedEvent,
+  DisputeResolvedEvent,
+  ProcessedDisputeResult,
+  DisputeListenerConfig,
+} from './blockchain/dispute-listener.service';
 
 // Jobs
 export {

@@ -17,6 +17,9 @@ import {
   BankTransferStatus,
   isValidTransition,
   isTerminalStatus,
+  isSafetyBlockedStatus,
+  canBeFrozenByDispute,
+  getSafetyStatusDescription,
 } from './settlement-status.enum';
 import { SplitPayment, TransferLeg } from './split-payment.value';
 import { v4 as uuidv4 } from 'uuid';
@@ -262,8 +265,49 @@ export class Settlement {
     return (
       this.isFailed &&
       this._retryCount < 3 &&
-      this._status !== SettlementStatus.MANUAL_REVIEW
+      this._status !== SettlementStatus.MANUAL_REVIEW &&
+      !this.isSafetyBlocked
     );
+  }
+
+  /**
+   * Checks if settlement is blocked by a safety mechanism.
+   * CRITICAL: Safety-blocked settlements require manual investigation.
+   */
+  get isSafetyBlocked(): boolean {
+    return isSafetyBlockedStatus(this._status);
+  }
+
+  /**
+   * Checks if settlement is frozen due to dispute.
+   */
+  get isFrozenByDispute(): boolean {
+    return this._status === SettlementStatus.FROZEN_BY_DISPUTE;
+  }
+
+  /**
+   * Checks if settlement is blocked by on-chain state change.
+   */
+  get isBlockedByStateChange(): boolean {
+    return this._status === SettlementStatus.BLOCKED_BY_STATE_CHANGE;
+  }
+
+  /**
+   * Checks if this settlement can be frozen by a dispute.
+   * Only non-terminal, non-frozen settlements can be frozen.
+   */
+  get canBeFrozen(): boolean {
+    return canBeFrozenByDispute(this._status);
+  }
+
+  /**
+   * Gets the last recorded on-chain status (if any) from events.
+   */
+  get lastKnownOnChainStatus(): number | undefined {
+    const stateChangeEvent = this._events.find(
+      e => e.action === 'ON_CHAIN_STATUS_VERIFIED' || e.action === 'BLOCKED_BY_STATE_CHANGE'
+    );
+    return stateChangeEvent?.details.onChainStatus as number | undefined;
   }
 
   // ============================================
@@ -434,6 +478,162 @@ export class Settlement {
       action: 'RETRY_PREPARED',
       details: {
         retryCount: this._retryCount,
+      },
+      performedBy,
+    });
+
+    this._version++;
+  }
+
+  // ============================================
+  // Safety State Transitions
+  // ============================================
+
+  /**
+   * SAFETY METHOD: Blocks settlement due to on-chain state change.
+   *
+   * Called when on-chain status is no longer VERIFIED at the final settlement moment.
+   * This is a CRITICAL safety mechanism to prevent settlement when verification is invalidated.
+   *
+   * SOP: "Final money release must re-confirm that verification is still valid at execution time."
+   *
+   * @param performedBy - System or user who detected the state change
+   * @param currentOnChainStatus - The actual on-chain status found
+   * @param expectedStatus - The expected status (VERIFIED = 2)
+   * @param reason - Human-readable reason
+   */
+  markBlockedByStateChange(
+    performedBy: string,
+    currentOnChainStatus: number,
+    expectedStatus: number,
+    reason: string
+  ): void {
+    if (this.isTerminal) {
+      throw new Error(`Cannot block terminal settlement in status ${this._status}`);
+    }
+
+    const previousStatus = this._status;
+    this._errorMessage = getSafetyStatusDescription(SettlementStatus.BLOCKED_BY_STATE_CHANGE) +
+      ` Detected: ${currentOnChainStatus}, Expected: ${expectedStatus}. ${reason}`;
+
+    this.transition(
+      SettlementStatus.BLOCKED_BY_STATE_CHANGE,
+      performedBy,
+      'BLOCKED_BY_STATE_CHANGE',
+      {
+        currentOnChainStatus,
+        expectedStatus,
+        reason,
+        previousStatus,
+        detectedAt: new Date().toISOString(),
+        safetyRule: 'RE_VERIFY_ON_CHAIN_BEFORE_SETTLEMENT',
+      }
+    );
+  }
+
+  /**
+   * SAFETY METHOD: Freezes settlement due to dispute on blockchain.
+   *
+   * Called when DisputeOpened event is detected for this contract.
+   * This is a CRITICAL safety mechanism to protect funds during dispute resolution.
+   *
+   * SOP: "When there is a dispute, money must be locked in a vault until justice is resolved."
+   *
+   * @param performedBy - System or user who detected the dispute
+   * @param disputeReasonHash - Hash of the dispute reason from blockchain
+   * @param disputeRaisedBy - Address that raised the dispute
+   * @param blockNumber - Block number where dispute was opened
+   */
+  markFrozenByDispute(
+    performedBy: string,
+    disputeReasonHash: string,
+    disputeRaisedBy: string,
+    blockNumber: number
+  ): void {
+    if (!this.canBeFrozen) {
+      throw new Error(
+        `Cannot freeze settlement in status ${this._status}. ` +
+        `Settlement must be non-terminal and not already frozen.`
+      );
+    }
+
+    const previousStatus = this._status;
+    this._errorMessage = getSafetyStatusDescription(SettlementStatus.FROZEN_BY_DISPUTE);
+
+    this.transition(
+      SettlementStatus.FROZEN_BY_DISPUTE,
+      performedBy,
+      'FROZEN_BY_DISPUTE',
+      {
+        disputeReasonHash,
+        disputeRaisedBy,
+        blockNumber,
+        previousStatus,
+        frozenAt: new Date().toISOString(),
+        safetyRule: 'DISPUTE_FREEZES_SETTLEMENT',
+        bankTransferStatus: this._status === SettlementStatus.BANK_PENDING
+          ? 'TRANSFER_MAY_BE_IN_PROGRESS'
+          : this._status === SettlementStatus.BANK_SUCCESS
+            ? 'TRANSFER_COMPLETED_FUNDS_LOCKED'
+            : 'NO_TRANSFER_INITIATED',
+      }
+    );
+  }
+
+  /**
+   * Records successful on-chain status verification.
+   * Called before proceeding with blockchain settlement to create audit trail.
+   *
+   * @param performedBy - System performing verification
+   * @param onChainStatus - Verified on-chain status
+   */
+  recordOnChainStatusVerified(performedBy: string, onChainStatus: number): void {
+    this.recordEvent({
+      id: uuidv4(),
+      timestamp: new Date(),
+      status: this._status,
+      action: 'ON_CHAIN_STATUS_VERIFIED',
+      details: {
+        onChainStatus,
+        expectedStatus: 2, // VERIFIED
+        verifiedAt: new Date().toISOString(),
+      },
+      performedBy,
+    });
+
+    this._version++;
+  }
+
+  /**
+   * Unfreezes settlement after dispute resolution in favor of completing settlement.
+   * Only allowed from FROZEN_BY_DISPUTE status.
+   *
+   * @param performedBy - Authorized user unfreezing
+   * @param resolutionTxHash - Blockchain transaction hash of dispute resolution
+   * @param resolutionDetails - Details of resolution
+   */
+  unfreezeAfterDisputeResolution(
+    performedBy: string,
+    resolutionTxHash: string,
+    resolutionDetails: string
+  ): void {
+    if (this._status !== SettlementStatus.FROZEN_BY_DISPUTE) {
+      throw new Error(`Cannot unfreeze settlement in status ${this._status}`);
+    }
+
+    // Reset to ESCROW_LOCKED to restart the settlement process
+    this._status = SettlementStatus.ESCROW_LOCKED;
+    this._errorMessage = undefined;
+
+    this.recordEvent({
+      id: uuidv4(),
+      timestamp: new Date(),
+      status: this._status,
+      action: 'UNFROZEN_AFTER_DISPUTE_RESOLUTION',
+      details: {
+        resolutionTxHash,
+        resolutionDetails,
+        unfrozenAt: new Date().toISOString(),
       },
       performedBy,
     });

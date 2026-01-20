@@ -90,6 +90,53 @@ export interface SettlementFailedEvent {
   timestamp: Date;
 }
 
+/**
+ * SAFETY EVENT: Settlement blocked due to on-chain state change.
+ * Emitted when on-chain status is no longer VERIFIED at final settlement moment.
+ */
+export interface SettlementBlockedEvent {
+  type: 'SETTLEMENT_BLOCKED_BY_STATE_CHANGE';
+  settlementId: string;
+  contractId: string;
+  currentOnChainStatus: number;
+  expectedOnChainStatus: number;
+  currentStatusName: string;
+  reason: string;
+  bankTransferStatus: string;
+  escrowFundsLocked: boolean;
+  timestamp: Date;
+}
+
+/**
+ * SAFETY EVENT: Settlement frozen due to dispute on blockchain.
+ * Emitted when DisputeOpened event is detected for a contract with active settlement.
+ */
+export interface SettlementFrozenByDisputeEvent {
+  type: 'SETTLEMENT_FROZEN_BY_DISPUTE';
+  settlementId: string;
+  contractId: string;
+  disputeReasonHash: string;
+  disputeRaisedBy: string;
+  blockNumber: number;
+  previousSettlementStatus: string;
+  escrowFundsLocked: boolean;
+  timestamp: Date;
+}
+
+/**
+ * Event emitted when escrow is automatically frozen due to dispute.
+ */
+export interface EscrowFrozenDueToDisputeEvent {
+  type: 'ESCROW_FROZEN_DUE_TO_DISPUTE';
+  escrowAccountId: string;
+  contractId: string;
+  frozenAmount: number;
+  disputeReasonHash: string;
+  disputeRaisedBy: string;
+  blockNumber: number;
+  timestamp: Date;
+}
+
 @Injectable()
 export class SettlementOrchestratorService {
   private readonly logger = new Logger(SettlementOrchestratorService.name);
@@ -484,6 +531,9 @@ export class SettlementOrchestratorService {
    *
    * ONLY called after bank transfer success.
    *
+   * CRITICAL SAFETY FIX: Re-validates on-chain status before final settlement.
+   * SOP: "Final money release must re-confirm that verification is still valid at execution time."
+   *
    * @param settlementId - Settlement ID
    */
   async completeSettlementOnChain(settlementId: string): Promise<void> {
@@ -506,6 +556,119 @@ export class SettlementOrchestratorService {
         await client.query('ROLLBACK');
         return;
       }
+
+      // ================================================================
+      // CRITICAL SAFETY FIX: Re-validate on-chain status before settlement
+      // This prevents settlement if contract status changed during bank processing
+      // ================================================================
+      const EXPECTED_STATUS_VERIFIED = 2;
+      let currentOnChainStatus: number;
+
+      try {
+        currentOnChainStatus = await this.ledgerSync.getContractStatus(settlement.contractId);
+        this.logger.log(
+          `On-chain status re-verification for ${settlement.contractId}: ` +
+          `current=${currentOnChainStatus}, expected=${EXPECTED_STATUS_VERIFIED} (VERIFIED)`
+        );
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Failed to re-verify on-chain status: ${errorMsg}`);
+
+        // Cannot proceed without verification - mark for manual review
+        settlement.markForManualReview(
+          'SYSTEM',
+          `Failed to re-verify on-chain status before settlement: ${errorMsg}`
+        );
+        await this.settlementRepo.save(settlement, client);
+        await client.query('COMMIT');
+
+        // Emit safety event
+        this.eventEmitter.emit('settlement.verification_failed', {
+          type: 'VERIFICATION_FAILED',
+          settlementId: settlement.id,
+          contractId: settlement.contractId,
+          error: errorMsg,
+          timestamp: new Date(),
+        });
+
+        return;
+      }
+
+      // SAFETY CHECK: Is on-chain status still VERIFIED?
+      if (currentOnChainStatus !== EXPECTED_STATUS_VERIFIED) {
+        this.logger.error(
+          `SAFETY BLOCK: On-chain status changed for contract ${settlement.contractId}. ` +
+          `Current: ${currentOnChainStatus}, Expected: ${EXPECTED_STATUS_VERIFIED} (VERIFIED). ` +
+          `Settlement ${settlementId} BLOCKED.`
+        );
+
+        // Get human-readable status for logging
+        const statusNames: Record<number, string> = {
+          0: 'CREATED',
+          1: 'FUNDED',
+          2: 'VERIFIED',
+          3: 'SETTLED',
+          4: 'DISPUTED',
+          5: 'CANCELLED',
+        };
+        const currentStatusName = statusNames[currentOnChainStatus] || `UNKNOWN(${currentOnChainStatus})`;
+
+        // Mark settlement as blocked by state change
+        settlement.markBlockedByStateChange(
+          'SYSTEM',
+          currentOnChainStatus,
+          EXPECTED_STATUS_VERIFIED,
+          `On-chain status is ${currentStatusName}, cannot proceed with settlement. ` +
+          `Bank transfer was successful but on-chain state changed during processing.`
+        );
+
+        // Get escrow account to freeze funds
+        const escrowAccount = await this.escrowRepo.findForUpdate(
+          settlement.escrowAccountId,
+          client
+        );
+
+        if (escrowAccount) {
+          // Ensure funds stay frozen - do NOT unfreeze
+          this.logger.warn(
+            `Escrow funds remain frozen for settlement ${settlementId}. ` +
+            `Balance: ${escrowAccount.balance}, Frozen: ${escrowAccount.frozenAmount}`
+          );
+        }
+
+        await this.settlementRepo.save(settlement, client);
+        await client.query('COMMIT');
+
+        // Emit critical safety event
+        const blockedEvent: SettlementBlockedEvent = {
+          type: 'SETTLEMENT_BLOCKED_BY_STATE_CHANGE',
+          settlementId: settlement.id,
+          contractId: settlement.contractId,
+          currentOnChainStatus,
+          expectedOnChainStatus: EXPECTED_STATUS_VERIFIED,
+          currentStatusName,
+          reason: 'On-chain status changed during bank processing',
+          bankTransferStatus: 'SUCCESS',
+          escrowFundsLocked: true,
+          timestamp: new Date(),
+        };
+        this.eventEmitter.emit('settlement.blocked', blockedEvent);
+
+        // DO NOT proceed with markSettled - return here
+        return;
+      }
+
+      // On-chain status is still VERIFIED - record verification and proceed
+      settlement.recordOnChainStatusVerified('SYSTEM', currentOnChainStatus);
+      await this.settlementRepo.save(settlement, client);
+
+      this.logger.log(
+        `On-chain status verified for settlement ${settlementId}: VERIFIED. Proceeding with markSettled.`
+      );
+
+      // ================================================================
+      // END SAFETY FIX - Proceed with blockchain settlement
+      // ================================================================
 
       // Generate settlement reference hash for blockchain
       const settlementRefHash = settlement.generateSettlementRefHash();
