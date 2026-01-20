@@ -9,10 +9,16 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "test:contracts": "hardhat test",
+    "test:contracts:coverage": "hardhat coverage",
     "lint": "eslint src/**/*.ts",
     "migrate": "node-pg-migrate",
     "compile:contracts": "hardhat compile",
-    "deploy:contracts": "hardhat run scripts/deploy.ts"
+    "deploy:contracts": "hardhat run scripts/deploy-v2.ts",
+    "deploy:contracts:polygon": "hardhat run scripts/deploy-v2.ts --network polygon",
+    "deploy:contracts:mumbai": "hardhat run scripts/deploy-v2.ts --network polygonMumbai",
+    "upgrade:contracts": "hardhat run scripts/upgrade-v2.ts",
+    "verify:contracts": "hardhat verify"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -49,6 +55,10 @@
     "@typescript-eslint/parser": "^6.13.2",
     "hardhat": "^2.19.2",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "@openzeppelin/contracts-upgradeable": "^5.0.1",
+    "@openzeppelin/hardhat-upgrades": "^3.0.1",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "node-pg-migrate": "^6.2.2"
   },
   "engines": {
