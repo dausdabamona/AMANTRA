@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { useThemeStore } from '@/store/theme';
 import { Header } from '@/components/layout/header';
@@ -22,10 +22,18 @@ interface ClientLayoutProps {
 }
 
 export function ClientLayout({ children, locale }: ClientLayoutProps) {
+  const [mounted, setMounted] = useState(false);
   const { theme } = useThemeStore();
 
-  // Handle theme
+  // Set mounted state after hydration completes
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Handle theme - only after component is mounted to avoid hydration mismatch
+  useEffect(() => {
+    if (!mounted) return;
+
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
 
@@ -37,11 +45,11 @@ export function ClientLayout({ children, locale }: ClientLayoutProps) {
     } else {
       root.classList.add(theme);
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (!mounted || theme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
@@ -52,7 +60,7 @@ export function ClientLayout({ children, locale }: ClientLayoutProps) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const currentMessages = messages[locale] || messages['id'];
 

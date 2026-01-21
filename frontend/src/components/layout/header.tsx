@@ -35,8 +35,14 @@ export function Header({ locale }: HeaderProps) {
   const t = useTranslations();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const { theme, toggleTheme } = useThemeStore();
   const { isAuthenticated, user, logout, isLoading } = useAuthStore();
+
+  // Set mounted state after hydration completes
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Handle scroll effect
   React.useEffect(() => {
@@ -171,7 +177,7 @@ export function Header({ locale }: HeaderProps) {
             ))}
 
             {/* Dashboard Dropdown - Only show when authenticated */}
-            {isAuthenticated && (
+            {mounted && isAuthenticated && (
               <div className="relative group">
                 <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-amantra-green-600 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                   {t('nav.dashboard')}
@@ -217,9 +223,9 @@ export function Header({ locale }: HeaderProps) {
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title={theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}
+              title={mounted ? (theme === 'dark' ? t('common.lightMode') : t('common.darkMode')) : ''}
             >
-              {theme === 'dark' ? (
+              {mounted && theme === 'dark' ? (
                 <Sun className="w-5 h-5" />
               ) : (
                 <Moon className="w-5 h-5" />
@@ -227,7 +233,7 @@ export function Header({ locale }: HeaderProps) {
             </button>
 
             {/* User Menu / Login Button */}
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <div className="hidden sm:flex items-center space-x-2">
                 {/* User Info */}
                 <Link
@@ -308,7 +314,7 @@ export function Header({ locale }: HeaderProps) {
                   </Link>
                 ))}
 
-                {isAuthenticated && (
+                {mounted && isAuthenticated && (
                   <>
                     <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
                     <p className="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
@@ -338,7 +344,7 @@ export function Header({ locale }: HeaderProps) {
                 <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
 
                 {/* Mobile Auth Buttons */}
-                {isAuthenticated ? (
+                {mounted && isAuthenticated ? (
                   <div className="px-4 py-2">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-500">
