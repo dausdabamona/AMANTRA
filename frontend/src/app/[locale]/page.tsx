@@ -26,9 +26,10 @@ interface HomePageProps {
   params: { locale: string };
 }
 
-// Animation variants - start visible for SSR, animate on client
+// Animation variants - start visible for SSR/static HTML
+// For static export, we always render visible content
 const fadeInUp = {
-  initial: { opacity: 1, y: 0 }, // Start visible for static HTML
+  initial: { opacity: 1, y: 0 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5 },
 };
@@ -39,6 +40,31 @@ const stagger = {
       staggerChildren: 0.1,
     },
   },
+};
+
+// For whileInView animations, start visible for SSR
+const fadeInUpView = {
+  initial: { opacity: 1, y: 0 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+};
+
+const fadeInLeftView = {
+  initial: { opacity: 1, x: 0 },
+  whileInView: { opacity: 1, x: 0 },
+  viewport: { once: true },
+};
+
+const fadeInRightView = {
+  initial: { opacity: 1, x: 0 },
+  whileInView: { opacity: 1, x: 0 },
+  viewport: { once: true },
+};
+
+const scaleInView = {
+  initial: { opacity: 1, scale: 1 },
+  whileInView: { opacity: 1, scale: 1 },
+  viewport: { once: true },
 };
 
 export default function HomePage({ params }: HomePageProps) {
@@ -188,9 +214,7 @@ export default function HomePage({ params }: HomePageProps) {
       <section className="relative -mt-16 z-10">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeInUpView}
             className="grid grid-cols-2 md:grid-cols-4 gap-4"
           >
             {stats.map((stat, index) => (
@@ -211,9 +235,7 @@ export default function HomePage({ params }: HomePageProps) {
       <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeInUpView}
             className="text-center mb-16"
           >
             <Badge variant="secondary" className="mb-4">
@@ -231,10 +253,7 @@ export default function HomePage({ params }: HomePageProps) {
             {features.map((feature, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                {...fadeInUpView}
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardHeader>
@@ -260,9 +279,7 @@ export default function HomePage({ params }: HomePageProps) {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              {...fadeInLeftView}
             >
               <Badge variant="gold" className="mb-4">
                 {t('principles.badge')}
@@ -297,9 +314,7 @@ export default function HomePage({ params }: HomePageProps) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              {...fadeInRightView}
               className="relative"
             >
               <div className="aspect-square rounded-2xl bg-gradient-to-br from-amantra-green-100 to-amantra-gold-100 dark:from-amantra-green-900/30 dark:to-amantra-gold-900/30 p-8 flex items-center justify-center">
@@ -338,9 +353,7 @@ export default function HomePage({ params }: HomePageProps) {
       <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeInUpView}
             className="text-center mb-16"
           >
             <Badge variant="secondary" className="mb-4">
@@ -358,10 +371,7 @@ export default function HomePage({ params }: HomePageProps) {
             {[1, 2, 3, 4].map((step) => (
               <motion.div
                 key={step}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: step * 0.1 }}
+                {...fadeInUpView}
                 className="relative"
               >
                 {/* Connector Line */}
@@ -385,9 +395,7 @@ export default function HomePage({ params }: HomePageProps) {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeInUpView}
             className="text-center mt-12"
           >
             <Link href={`/${locale}/how-it-works`}>
@@ -403,9 +411,7 @@ export default function HomePage({ params }: HomePageProps) {
       <section className="py-24">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            {...scaleInView}
             className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amantra-green-600 to-amantra-green-700 p-12 md:p-16 text-center"
           >
             {/* Background Pattern */}
