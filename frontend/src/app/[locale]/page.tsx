@@ -26,8 +26,9 @@ interface HomePageProps {
   params: { locale: string };
 }
 
+// Animation variants - start visible for SSR, animate on client
 const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 1, y: 0 }, // Start visible for static HTML
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5 },
 };
