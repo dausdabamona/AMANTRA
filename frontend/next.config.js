@@ -1,33 +1,25 @@
-const createNextIntlPlugin = require('next-intl/plugin');
-
-const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+// Check if building for GitHub Pages
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // Static export for GitHub Pages
+  output: 'export',
+
+  // Base path for GitHub Pages (repo name)
+  basePath: isGitHubPages ? '/AMANTRA' : '',
+  assetPrefix: isGitHubPages ? '/AMANTRA/' : '',
+
+  // Trailing slash for static hosting
+  trailingSlash: true,
+
   images: {
     domains: ['gateway.pinata.cloud', 'ipfs.io'],
+    // Required for static export
+    unoptimized: true,
   },
-  // serverActions is enabled by default in Next.js 14
-  headers: async () => [
-    {
-      source: '/(.*)',
-      headers: [
-        {
-          key: 'X-Frame-Options',
-          value: 'DENY',
-        },
-        {
-          key: 'X-Content-Type-Options',
-          value: 'nosniff',
-        },
-        {
-          key: 'Referrer-Policy',
-          value: 'strict-origin-when-cross-origin',
-        },
-      ],
-    },
-  ],
 };
 
-module.exports = withNextIntl(nextConfig);
+module.exports = nextConfig;

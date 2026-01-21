@@ -40,7 +40,7 @@ export function useContractRead() {
     }
   }, [contract]);
 
-  const getContract = useCallback(async (contractId: string): Promise<Contract | null> => {
+  const getContract = useCallback(async (contractId: string) => {
     if (!contract) return null;
     try {
       const data = await contract.getContract(contractId);
@@ -50,8 +50,8 @@ export function useContractRead() {
         seller: data.seller,
         amount: ethers.formatEther(data.amount),
         status: data.status as ContractStatus,
-        createdAt: new Date(Number(data.createdAt) * 1000),
-        deadline: new Date(Number(data.deadline) * 1000),
+        createdAt: Number(data.createdAt),
+        deadline: Number(data.deadline),
         title: data.title || '',
         description: data.description || '',
         akadType: data.akadType || '',

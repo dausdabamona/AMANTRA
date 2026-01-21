@@ -94,7 +94,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans Arabic', 'system-ui', 'sans-serif'],
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
         arabic: ['Noto Sans Arabic', 'system-ui', 'sans-serif'],
       },
       fontSize: {

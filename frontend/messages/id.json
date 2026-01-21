@@ -13,7 +13,17 @@
     "next": "Selanjutnya",
     "previous": "Sebelumnya",
     "view": "Lihat",
-    "viewAll": "Lihat Semua"
+    "viewAll": "Lihat Semua",
+    "selectLanguage": "Pilih Bahasa",
+    "darkMode": "Mode Gelap",
+    "connectWallet": "Hubungkan Dompet",
+    "description": "Deskripsi"
+  },
+  "roles": {
+    "user": "Pengguna",
+    "majelis": "Majelis Arbitrase",
+    "hisbah": "Dewan Hisbah",
+    "operator": "Operator"
   },
   "nav": {
     "home": "Beranda",
@@ -160,7 +170,20 @@
     "completed": "Selesai",
     "disputed": "Disengketakan",
     "pendingDelivery": "Menunggu Pengiriman",
-    "pendingFunding": "Menunggu Dana"
+    "pendingFunding": "Menunggu Dana",
+    "created": "Dibuat",
+    "funded": "Didanai",
+    "verified": "Diverifikasi",
+    "settled": "Diselesaikan",
+    "cancelled": "Dibatalkan"
+  },
+  "governance": {
+    "waqf": {
+      "title": "Pool Waqf"
+    },
+    "succession": {
+      "title": "Protokol Suksesi"
+    }
   },
   "dashboard": {
     "welcome": "Selamat Datang",

@@ -615,7 +615,7 @@ export default function NewContractPage({ params }: NewContractPageProps) {
           <Button
             onClick={handleSubmit}
             disabled={!canProceed() || isSubmitting}
-            isLoading={isSubmitting}
+            loading={isSubmitting}
           >
             {t('contracts.new.submit')}
           </Button>

@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useWalletStore } from '@/store/wallet';
-import { formatAddress, formatAmount, formatRelativeTime, getStatusColor } from '@/lib/utils';
+import { formatAddress, formatAmount, formatRelativeTime, getStatusColor, getStatusLabel } from '@/lib/utils';
 import { ContractStatus } from '@/types';
 
 interface DashboardPageProps {
@@ -50,7 +50,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
       title: 'Website Development Project',
       counterparty: '0xabcd...efgh',
       amount: '2.5',
-      status: ContractStatus.Active,
+      status: ContractStatus.FUNDED,
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       role: 'buyer',
     },
@@ -59,7 +59,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
       title: 'Logo Design Services',
       counterparty: '0xbcde...fghi',
       amount: '0.8',
-      status: ContractStatus.PendingDelivery,
+      status: ContractStatus.VERIFIED,
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       role: 'seller',
     },
@@ -68,7 +68,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
       title: 'Consulting Agreement',
       counterparty: '0xcdef...ghij',
       amount: '1.2',
-      status: ContractStatus.Disputed,
+      status: ContractStatus.DISPUTED,
       createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       role: 'buyer',
     },
@@ -290,15 +290,15 @@ export default function DashboardPage({ params }: DashboardPageProps) {
                         </p>
                         <Badge
                           variant={
-                            contract.status === ContractStatus.Active
+                            contract.status === ContractStatus.FUNDED
                               ? 'success'
-                              : contract.status === ContractStatus.Disputed
+                              : contract.status === ContractStatus.DISPUTED
                               ? 'error'
                               : 'warning'
                           }
                           className="text-xs"
                         >
-                          {contract.status}
+                          {getStatusLabel(contract.status)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">

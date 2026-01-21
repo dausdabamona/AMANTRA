@@ -433,7 +433,7 @@ export default function MajelisPage({ params }: MajelisPageProps) {
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-amantra-green-50 dark:bg-amantra-green-900/20 border border-amantra-green-200 dark:border-amantra-green-800">
                   <h4 className="font-semibold text-amantra-green-800 dark:text-amantra-green-300 mb-2">
-                    {'Adl (Justice)}
+                    Adl (Justice)
                   </h4>
                   <p className="text-sm text-amantra-green-700 dark:text-amantra-green-400">
                     Ensure fair and impartial review of all evidence from both parties before making a decision.

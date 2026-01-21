@@ -1,20 +1,11 @@
-'use client';
-
 import * as React from 'react';
-import { useEffect } from 'react';
-import { NextIntlClientProvider } from 'next-intl';
-import { useThemeStore } from '@/store/theme';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
+import { locales } from '@/i18n';
+import { ClientLayout } from './client-layout';
 
-// Import messages statically for client-side rendering
-import idMessages from '../../../messages/id.json';
-import enMessages from '../../../messages/en.json';
-
-const messages: Record<string, typeof idMessages> = {
-  id: idMessages,
-  en: enMessages,
-};
+// Generate static params for all locales
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -23,50 +14,13 @@ interface LocaleLayoutProps {
 
 export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale } = params;
-  const { theme } = useThemeStore();
-
-  // Handle theme
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
-  }, [theme]);
-
-  // Listen for system theme changes
-  useEffect(() => {
-    if (theme !== 'system') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      const root = document.documentElement;
-      root.classList.remove('light', 'dark');
-      root.classList.add(e.matches ? 'dark' : 'light');
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
-  const currentMessages = messages[locale] || messages['id'];
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
-        <NextIntlClientProvider locale={locale} messages={currentMessages}>
-          <div className="flex min-h-screen flex-col">
-            <Header locale={locale} />
-            <main className="flex-1">{children}</main>
-            <Footer locale={locale} />
-          </div>
-        </NextIntlClientProvider>
+        <ClientLayout locale={locale}>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

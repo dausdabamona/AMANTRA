@@ -118,7 +118,7 @@ export default function HomePage({ params }: HomePageProps) {
             className="text-center max-w-4xl mx-auto"
           >
             <motion.div variants={fadeInUp}>
-              <Badge variant="gold\" className="mb-6">
+              <Badge variant="gold" className="mb-6">
                 <Zap className="w-3 h-3 mr-1" />
                 {t('hero.badge')}
               </Badge>

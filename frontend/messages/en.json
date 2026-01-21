@@ -13,7 +13,17 @@
     "next": "Next",
     "previous": "Previous",
     "view": "View",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "selectLanguage": "Select Language",
+    "darkMode": "Dark Mode",
+    "connectWallet": "Connect Wallet",
+    "description": "Description"
+  },
+  "roles": {
+    "user": "User",
+    "majelis": "Arbitration Council",
+    "hisbah": "Oversight Council",
+    "operator": "Operator"
   },
   "nav": {
     "home": "Home",
@@ -160,7 +170,20 @@
     "completed": "Completed",
     "disputed": "Disputed",
     "pendingDelivery": "Pending Delivery",
-    "pendingFunding": "Pending Funding"
+    "pendingFunding": "Pending Funding",
+    "created": "Created",
+    "funded": "Funded",
+    "verified": "Verified",
+    "settled": "Settled",
+    "cancelled": "Cancelled"
+  },
+  "governance": {
+    "waqf": {
+      "title": "Waqf Pool"
+    },
+    "succession": {
+      "title": "Succession Protocol"
+    }
   },
   "dashboard": {
     "welcome": "Welcome",

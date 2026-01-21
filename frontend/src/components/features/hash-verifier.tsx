@@ -197,7 +197,7 @@ export function HashVerifier({ expectedHash, contractId, onVerified }: HashVerif
         <Button
           onClick={handleVerify}
           disabled={!calculatedHash || !inputHash || isCalculating}
-          isLoading={isCalculating}
+          loading={isCalculating}
           className="w-full"
         >
           {isCalculating ? t('hashVerifier.calculating') : t('hashVerifier.verify')}

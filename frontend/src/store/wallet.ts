@@ -42,7 +42,7 @@ export const useWalletStore = create<WalletState>()(
             // Request accounts
             const accounts = await window.ethereum.request({
               method: 'eth_requestAccounts',
-            });
+            }) as string[];
 
             if (accounts && accounts.length > 0) {
               const address = accounts[0];
@@ -50,14 +50,14 @@ export const useWalletStore = create<WalletState>()(
               // Get chain ID
               const chainIdHex = await window.ethereum.request({
                 method: 'eth_chainId',
-              });
+              }) as string;
               const chainId = parseInt(chainIdHex, 16);
 
               // Get balance
               const balanceHex = await window.ethereum.request({
                 method: 'eth_getBalance',
                 params: [address, 'latest'],
-              });
+              }) as string;
               const balance = (parseInt(balanceHex, 16) / 1e18).toFixed(4);
 
               set({
@@ -70,17 +70,19 @@ export const useWalletStore = create<WalletState>()(
               });
 
               // Setup event listeners
-              window.ethereum.on('accountsChanged', (accounts: string[]) => {
+              window.ethereum.on('accountsChanged', ((...args: unknown[]) => {
+                const accounts = args[0] as string[];
                 if (accounts.length === 0) {
                   get().disconnect();
                 } else {
                   set({ address: accounts[0] });
                 }
-              });
+              }) as (...args: unknown[]) => void);
 
-              window.ethereum.on('chainChanged', (chainIdHex: string) => {
+              window.ethereum.on('chainChanged', ((...args: unknown[]) => {
+                const chainIdHex = args[0] as string;
                 set({ chainId: parseInt(chainIdHex, 16) });
-              });
+              }) as (...args: unknown[]) => void);
             }
           } else {
             set({

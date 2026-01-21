@@ -44,7 +44,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
       description: 'Full-stack web application development with React and Node.js',
       counterparty: '0xabcdef1234567890abcdef1234567890abcdef12',
       amount: '2.5',
-      status: ContractStatus.Active,
+      status: ContractStatus.FUNDED,
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       role: 'buyer' as const,
@@ -56,7 +56,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
       description: 'Professional logo design with unlimited revisions',
       counterparty: '0xbcdef12345678901bcdef12345678901bcdef123',
       amount: '0.8',
-      status: ContractStatus.PendingDelivery,
+      status: ContractStatus.VERIFIED,
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       role: 'seller' as const,
@@ -68,7 +68,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
       description: 'Business strategy consulting for 3 months',
       counterparty: '0xcdef123456789012cdef123456789012cdef1234',
       amount: '1.2',
-      status: ContractStatus.Disputed,
+      status: ContractStatus.DISPUTED,
       createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       deadline: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       role: 'buyer' as const,
@@ -80,7 +80,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
       description: 'Social media marketing for product launch',
       counterparty: '0xdef1234567890123def1234567890123def12345',
       amount: '1.5',
-      status: ContractStatus.Completed,
+      status: ContractStatus.SETTLED,
       createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       deadline: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
       role: 'seller' as const,
@@ -92,7 +92,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
       description: 'Cross-platform mobile application',
       counterparty: '0xef12345678901234ef12345678901234ef123456',
       amount: '5.0',
-      status: ContractStatus.PendingFunding,
+      status: ContractStatus.CREATED,
       createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       role: 'buyer' as const,
@@ -111,22 +111,27 @@ export default function ContractsPage({ params }: ContractsPageProps) {
 
   const statusCounts = {
     all: contracts.length,
-    [ContractStatus.Active]: contracts.filter((c) => c.status === ContractStatus.Active).length,
-    [ContractStatus.PendingFunding]: contracts.filter((c) => c.status === ContractStatus.PendingFunding).length,
-    [ContractStatus.PendingDelivery]: contracts.filter((c) => c.status === ContractStatus.PendingDelivery).length,
-    [ContractStatus.Disputed]: contracts.filter((c) => c.status === ContractStatus.Disputed).length,
-    [ContractStatus.Completed]: contracts.filter((c) => c.status === ContractStatus.Completed).length,
+    [ContractStatus.CREATED]: contracts.filter((c) => c.status === ContractStatus.CREATED).length,
+    [ContractStatus.FUNDED]: contracts.filter((c) => c.status === ContractStatus.FUNDED).length,
+    [ContractStatus.VERIFIED]: contracts.filter((c) => c.status === ContractStatus.VERIFIED).length,
+    [ContractStatus.DISPUTED]: contracts.filter((c) => c.status === ContractStatus.DISPUTED).length,
+    [ContractStatus.SETTLED]: contracts.filter((c) => c.status === ContractStatus.SETTLED).length,
+    [ContractStatus.CANCELLED]: contracts.filter((c) => c.status === ContractStatus.CANCELLED).length,
   };
 
   const getStatusIcon = (status: ContractStatus) => {
     switch (status) {
-      case ContractStatus.Active:
+      case ContractStatus.CREATED:
+        return <FileText className="w-4 h-4" />;
+      case ContractStatus.FUNDED:
         return <Clock className="w-4 h-4" />;
-      case ContractStatus.Completed:
+      case ContractStatus.VERIFIED:
         return <CheckCircle className="w-4 h-4" />;
-      case ContractStatus.Disputed:
+      case ContractStatus.SETTLED:
+        return <CheckCircle className="w-4 h-4" />;
+      case ContractStatus.DISPUTED:
         return <AlertTriangle className="w-4 h-4" />;
-      case ContractStatus.Cancelled:
+      case ContractStatus.CANCELLED:
         return <XCircle className="w-4 h-4" />;
       default:
         return <FileText className="w-4 h-4" />;
@@ -178,26 +183,26 @@ export default function ContractsPage({ params }: ContractsPageProps) {
                 {t('contracts.filter.all')} ({statusCounts.all})
               </Button>
               <Button
-                variant={statusFilter === ContractStatus.Active ? 'default' : 'outline'}
+                variant={statusFilter === ContractStatus.FUNDED ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter(ContractStatus.Active)}
+                onClick={() => setStatusFilter(ContractStatus.FUNDED)}
               >
-                {t('status.active')} ({statusCounts[ContractStatus.Active]})
+                {t('status.funded')} ({statusCounts[ContractStatus.FUNDED]})
               </Button>
               <Button
-                variant={statusFilter === ContractStatus.PendingDelivery ? 'default' : 'outline'}
+                variant={statusFilter === ContractStatus.VERIFIED ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter(ContractStatus.PendingDelivery)}
+                onClick={() => setStatusFilter(ContractStatus.VERIFIED)}
               >
-                {t('status.pendingDelivery')} ({statusCounts[ContractStatus.PendingDelivery]})
+                {t('status.verified')} ({statusCounts[ContractStatus.VERIFIED]})
               </Button>
               <Button
-                variant={statusFilter === ContractStatus.Disputed ? 'default' : 'outline'}
+                variant={statusFilter === ContractStatus.DISPUTED ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter(ContractStatus.Disputed)}
-                className={statusFilter === ContractStatus.Disputed ? '' : 'text-red-600 border-red-200 hover:bg-red-50'}
+                onClick={() => setStatusFilter(ContractStatus.DISPUTED)}
+                className={statusFilter === ContractStatus.DISPUTED ? '' : 'text-red-600 border-red-200 hover:bg-red-50'}
               >
-                {t('status.disputed')} ({statusCounts[ContractStatus.Disputed]})
+                {t('status.disputed')} ({statusCounts[ContractStatus.DISPUTED]})
               </Button>
             </div>
 
@@ -245,9 +250,9 @@ export default function ContractsPage({ params }: ContractsPageProps) {
                     {/* Contract Info */}
                     <div className="flex items-start gap-4 flex-1">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        contract.status === ContractStatus.Disputed
+                        contract.status === ContractStatus.DISPUTED
                           ? 'bg-red-100 dark:bg-red-900/30'
-                          : contract.status === ContractStatus.Completed
+                          : contract.status === ContractStatus.SETTLED
                           ? 'bg-green-100 dark:bg-green-900/30'
                           : 'bg-blue-100 dark:bg-blue-900/30'
                       }`}>
@@ -309,7 +314,7 @@ export default function ContractsPage({ params }: ContractsPageProps) {
                   </div>
 
                   {/* Progress/Deadline */}
-                  {(contract.status === ContractStatus.Active || contract.status === ContractStatus.PendingDelivery) && (
+                  {(contract.status === ContractStatus.FUNDED || contract.status === ContractStatus.VERIFIED) && (
                     <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">

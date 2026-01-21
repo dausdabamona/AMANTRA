@@ -54,10 +54,11 @@ export function parseEther(ether: string): bigint {
 }
 
 /**
- * Format timestamp to relative time
+ * Format timestamp or Date to relative time
  */
-export function formatRelativeTime(timestamp: number, locale = 'id'): string {
-  return formatDistanceToNow(new Date(timestamp * 1000), {
+export function formatRelativeTime(timestamp: number | Date, locale = 'id'): string {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp * 1000);
+  return formatDistanceToNow(date, {
     addSuffix: true,
     locale: locale === 'id' ? idLocale : enUS,
   });
