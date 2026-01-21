@@ -11,7 +11,8 @@ interface FooterProps {
 
 export function Footer({ locale }: FooterProps) {
   const t = useTranslations();
-  const currentYear = new Date().getFullYear();
+  // Use a fixed year to avoid hydration mismatch between server and client
+  const currentYear = 2026;
 
   const footerLinks = {
     platform: [

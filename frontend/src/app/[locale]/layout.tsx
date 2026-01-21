@@ -17,7 +17,7 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+      <body suppressHydrationWarning className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
         <ClientLayout locale={locale}>
           {children}
         </ClientLayout>

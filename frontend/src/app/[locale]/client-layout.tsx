@@ -23,7 +23,9 @@ interface ClientLayoutProps {
 
 export function ClientLayout({ children, locale }: ClientLayoutProps) {
   const [mounted, setMounted] = useState(false);
-  const { theme } = useThemeStore();
+
+  // Only access store after mounting to avoid hydration mismatch
+  const theme = useThemeStore((state) => mounted ? state.theme : 'system');
 
   // Set mounted state after hydration completes
   useEffect(() => {
@@ -37,19 +39,44 @@ export function ClientLayout({ children, locale }: ClientLayoutProps) {
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
 
-    if (theme === 'system') {
+    const currentTheme = useThemeStore.getState().theme;
+    if (currentTheme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
       root.classList.add(systemTheme);
     } else {
-      root.classList.add(theme);
+      root.classList.add(currentTheme);
     }
-  }, [theme, mounted]);
+  }, [mounted]);
+
+  // Subscribe to theme changes after mounting
+  useEffect(() => {
+    if (!mounted) return;
+
+    const unsubscribe = useThemeStore.subscribe((state) => {
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+
+      if (state.theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+        root.classList.add(systemTheme);
+      } else {
+        root.classList.add(state.theme);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [mounted]);
 
   // Listen for system theme changes
   useEffect(() => {
-    if (!mounted || theme !== 'system') return;
+    if (!mounted) return;
+
+    const currentTheme = useThemeStore.getState().theme;
+    if (currentTheme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
@@ -60,13 +87,13 @@ export function ClientLayout({ children, locale }: ClientLayoutProps) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, mounted]);
+  }, [mounted, theme]);
 
   const currentMessages = messages[locale] || messages['id'];
 
   return (
     <NextIntlClientProvider locale={locale} messages={currentMessages}>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col" suppressHydrationWarning>
         <Header locale={locale} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} />
