@@ -186,6 +186,28 @@
   }
 }
 
+/* Fallback styles - ensure content is visible even if JS fails to load */
+/* This overrides Framer Motion's initial opacity:0 state */
+@keyframes fadeInFallback {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply delayed animation to elements that might have opacity:0 from Framer Motion */
+[style*="opacity: 0"],
+[style*="opacity:0"] {
+  animation: fadeInFallback 0.3s ease-out 0.5s forwards;
+}
+
+/* Ensure body is visible */
+body {
+  opacity: 1 !important;
+}
+
 /* Print styles */
 @media print {
   .no-print {

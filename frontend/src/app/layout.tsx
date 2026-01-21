@@ -12,11 +12,6 @@ export const metadata: Metadata = {
   creator: 'AMANTRA',
   publisher: 'AMANTRA',
   robots: 'index, follow',
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
 };
 
 export const viewport: Viewport = {
