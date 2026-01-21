@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu,
@@ -10,7 +10,7 @@ import {
   Sun,
   Moon,
   Globe,
-  Wallet,
+  User as UserIcon,
   ChevronDown,
   Shield,
   Scale,
@@ -18,12 +18,14 @@ import {
   Eye,
   Users,
   LogOut,
+  LogIn,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn, formatAddress } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useThemeStore } from '@/store/theme';
-import { useWalletStore } from '@/store/wallet';
+import { useAuthStore, hasRole } from '@/store/auth';
 
 interface HeaderProps {
   locale: string;
@@ -34,7 +36,7 @@ export function Header({ locale }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { theme, toggleTheme } = useThemeStore();
-  const { isConnected, address, connect, disconnect } = useWalletStore();
+  const { isAuthenticated, user, logout, isLoading } = useAuthStore();
 
   // Handle scroll effect
   React.useEffect(() => {
@@ -49,16 +51,83 @@ export function Header({ locale }: HeaderProps) {
     { href: `/${locale}`, label: t('nav.home') },
     { href: `/${locale}/about`, label: t('nav.about') },
     { href: `/${locale}/how-it-works`, label: t('nav.howItWorks') },
-    { href: `/${locale}/governance`, label: t('nav.governance') },
-    { href: `/${locale}/transparency`, label: t('nav.transparency') },
+    { href: `/${locale}/sharia-principles`, label: t('nav.shariaPrinciples') },
   ];
 
-  const dashboardItems = [
-    { href: `/${locale}/user`, label: t('roles.user'), icon: Users, badge: null },
-    { href: `/${locale}/majelis`, label: t('roles.majelis'), icon: Scale, badge: '3' },
-    { href: `/${locale}/hisbah`, label: t('roles.hisbah'), icon: Eye, badge: '2' },
-    { href: `/${locale}/operator`, label: t('roles.operator'), icon: Building2, badge: null },
-  ];
+  // Dashboard items based on user roles
+  const getDashboardItems = () => {
+    const items: {
+      href: string;
+      label: string;
+      icon: typeof Users;
+      badge: string | null;
+      roles: readonly string[];
+    }[] = [
+      {
+        href: `/${locale}/dashboard`,
+        label: t('roles.user'),
+        icon: Users,
+        badge: null,
+        roles: ['user'] as const,
+      },
+      {
+        href: `/${locale}/dashboard/contracts`,
+        label: t('nav.contracts'),
+        icon: FileText,
+        badge: null,
+        roles: ['user'] as const,
+      },
+    ];
+
+    // Add role-specific items
+    if (hasRole('arbitrator')) {
+      items.push({
+        href: `/${locale}/dashboard/majelis`,
+        label: t('roles.majelis'),
+        icon: Scale,
+        badge: '3',
+        roles: ['arbitrator'] as const,
+      });
+    }
+
+    if (hasRole('hisbah')) {
+      items.push({
+        href: `/${locale}/dashboard/hisbah`,
+        label: t('roles.hisbah'),
+        icon: Eye,
+        badge: '2',
+        roles: ['hisbah'] as const,
+      });
+    }
+
+    if (hasRole('operator')) {
+      items.push({
+        href: `/${locale}/dashboard/operator`,
+        label: t('roles.operator'),
+        icon: Building2,
+        badge: null,
+        roles: ['operator'] as const,
+      });
+    }
+
+    return items;
+  };
+
+  const dashboardItems = getDashboardItems();
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMenuOpen(false);
+  };
+
+  // Format user display name
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    if (user.name) return user.name;
+    if (user.email) return user.email.split('@')[0];
+    if (user.phone) return user.phone.replace(/(\+62)(\d{3})(\d+)(\d{4})/, '$1$2****$4');
+    return 'User';
+  };
 
   return (
     <header
@@ -101,8 +170,8 @@ export function Header({ locale }: HeaderProps) {
               </Link>
             ))}
 
-            {/* Dashboard Dropdown */}
-            {isConnected && (
+            {/* Dashboard Dropdown - Only show when authenticated */}
+            {isAuthenticated && (
               <div className="relative group">
                 <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-amantra-green-600 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                   {t('nav.dashboard')}
@@ -157,33 +226,49 @@ export function Header({ locale }: HeaderProps) {
               )}
             </button>
 
-            {/* Wallet Button */}
-            {isConnected ? (
+            {/* User Menu / Login Button */}
+            {isAuthenticated ? (
               <div className="hidden sm:flex items-center space-x-2">
-                <div className="px-3 py-1.5 rounded-lg bg-amantra-green-50 dark:bg-amantra-green-900/20 border border-amantra-green-200 dark:border-amantra-green-800">
+                {/* User Info */}
+                <Link
+                  href={`/${locale}/dashboard/profile`}
+                  className="flex items-center px-3 py-1.5 rounded-lg bg-amantra-green-50 dark:bg-amantra-green-900/20 border border-amantra-green-200 dark:border-amantra-green-800 hover:bg-amantra-green-100 dark:hover:bg-amantra-green-900/30 transition-colors"
+                >
+                  <UserIcon className="w-4 h-4 mr-2 text-amantra-green-600 dark:text-amantra-green-400" />
                   <span className="text-sm font-medium text-amantra-green-700 dark:text-amantra-green-300">
-                    {formatAddress(address || '')}
+                    {getUserDisplayName()}
                   </span>
-                </div>
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={disconnect}
-                  title={t('common.disconnectWallet')}
+                  onClick={handleLogout}
+                  loading={isLoading}
+                  title={t('auth.logout')}
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={connect}
-                leftIcon={<Wallet className="w-4 h-4" />}
-                className="hidden sm:flex"
-              >
-                {t('common.connectWallet')}
-              </Button>
+              <div className="hidden sm:flex items-center space-x-2">
+                <Link href={`/${locale}/auth/login`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                  >
+                    {t('auth.login')}
+                  </Button>
+                </Link>
+                <Link href={`/${locale}/auth/register`}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    leftIcon={<LogIn className="w-4 h-4" />}
+                  >
+                    {t('auth.register')}
+                  </Button>
+                </Link>
+              </div>
             )}
 
             {/* Mobile Menu Button */}
@@ -223,7 +308,7 @@ export function Header({ locale }: HeaderProps) {
                   </Link>
                 ))}
 
-                {isConnected && (
+                {isAuthenticated && (
                   <>
                     <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
                     <p className="px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
@@ -252,34 +337,53 @@ export function Header({ locale }: HeaderProps) {
 
                 <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
 
-                {/* Mobile Wallet Button */}
-                {isConnected ? (
+                {/* Mobile Auth Buttons */}
+                {isAuthenticated ? (
                   <div className="px-4 py-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-500">
-                        {t('common.walletConnected')}
+                        {t('auth.loggedInAs')}
                       </span>
                       <span className="text-sm font-medium text-amantra-green-600">
-                        {formatAddress(address || '')}
+                        {getUserDisplayName()}
                       </span>
                     </div>
-                    <Button
-                      variant="outline"
-                      className="w-full mt-2"
-                      onClick={disconnect}
-                    >
-                      {t('common.disconnectWallet')}
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/${locale}/dashboard/profile`}
+                        className="flex-1"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Button variant="outline" className="w-full">
+                          {t('auth.profile')}
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        loading={isLoading}
+                      >
+                        <LogOut className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <Button
-                    variant="default"
-                    className="mx-4"
-                    onClick={connect}
-                    leftIcon={<Wallet className="w-4 h-4" />}
-                  >
-                    {t('common.connectWallet')}
-                  </Button>
+                  <div className="px-4 space-y-2">
+                    <Link href={`/${locale}/auth/login`} onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        {t('auth.login')}
+                      </Button>
+                    </Link>
+                    <Link href={`/${locale}/auth/register`} onClick={() => setIsMenuOpen(false)}>
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        leftIcon={<LogIn className="w-4 h-4" />}
+                      >
+                        {t('auth.register')}
+                      </Button>
+                    </Link>
+                  </div>
                 )}
               </nav>
             </div>

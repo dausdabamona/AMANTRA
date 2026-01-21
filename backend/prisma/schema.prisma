@@ -1,0 +1,616 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ ENUMS ============
+
+enum AkadStatus {
+  DRAFT
+  PENDING_PAYMENT
+  FUNDED
+  IN_PROGRESS
+  MILESTONE_APPROVED
+  PENDING_RELEASE
+  COMPLETED
+  DISPUTED
+  ARBITRATION_IN_PROGRESS
+  RESOLVED_BUYER
+  RESOLVED_SELLER
+  FROZEN_BY_HISBAH
+  UNDER_REVIEW
+  CANCELLED
+}
+
+enum AkadType {
+  JUAL_BELI
+  ISTISNA
+  IJARAH
+  SALAM
+  MURABAHAH
+  MUSYARAKAH
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  WITNESS_APPROVED
+  BUYER_APPROVED
+  DISPUTED
+  RELEASED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  QRIS
+  BANK_TRANSFER
+  VIRTUAL_ACCOUNT
+  EWALLET_OVO
+  EWALLET_GOPAY
+  EWALLET_DANA
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+enum DisputeStatus {
+  RAISED
+  UNDER_REVIEW
+  ARBITRATION_ASSIGNED
+  VOTING_IN_PROGRESS
+  RESOLVED_BUYER
+  RESOLVED_SELLER
+  RESOLVED_SPLIT
+  WITHDRAWN
+  ESCALATED_TO_HISBAH
+}
+
+enum DisputeCategory {
+  QUALITY_ISSUE
+  DELIVERY_DELAY
+  NON_DELIVERY
+  PAYMENT_DISPUTE
+  CONTRACT_BREACH
+  FRAUD_SUSPECTED
+  OTHER
+}
+
+enum UserRole {
+  USER
+  WITNESS
+  ARBITRATOR
+  HISBAH
+  OPERATOR
+  ADMIN
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum WitnessRole {
+  SAKSI_LAPANGAN
+  PENGAWAS_PROYEK
+  SAKSI_AKAD
+}
+
+enum ArbitrationVote {
+  PENDING
+  FAVOR_BUYER
+  FAVOR_SELLER
+  SPLIT
+  ABSTAIN
+}
+
+enum HisbahActionType {
+  FREEZE
+  UNFREEZE
+  VETO_RELEASE
+  ESCALATE
+  WARNING
+  SUSPEND_USER
+}
+
+enum AnchorEntityType {
+  AKAD
+  MILESTONE
+  WITNESS_APPROVAL
+  DISPUTE
+  ARBITRATION_DECISION
+  HISBAH_ACTION
+  PAYMENT_RELEASE
+}
+
+// ============ MODELS ============
+
+model User {
+  id        String   @id @default(uuid())
+  authId    String?  @unique @map("auth_id")
+
+  // Profile
+  email     String?  @unique
+  phone     String?  @unique
+  name      String
+  avatarUrl String?  @map("avatar_url")
+
+  // KYC
+  nik           String?   @db.VarChar(16)
+  kycStatus     KycStatus @default(PENDING) @map("kyc_status")
+  kycVerifiedAt DateTime? @map("kyc_verified_at")
+
+  // Role
+  role UserRole @default(USER)
+
+  // Settings
+  notificationPreferences Json @default("{\"email\": true, \"sms\": true, \"push\": true}") @map("notification_preferences")
+
+  // Timestamps
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  akadAsBuyer      Akad[]        @relation("BuyerAkad")
+  akadAsSeller     Akad[]        @relation("SellerAkad")
+  witnessAssignments Witness[]   @relation("WitnessUser")
+  witnessAssignedBy  Witness[]   @relation("WitnessAssignedBy")
+  disputesRaised   Dispute[]     @relation("DisputeRaiser")
+  disputeResponses Dispute[]     @relation("DisputeRespondent")
+  arbitrations1    Arbitration[] @relation("Arbitrator1")
+  arbitrations2    Arbitration[] @relation("Arbitrator2")
+  arbitrations3    Arbitration[] @relation("Arbitrator3")
+  hisbahActions    HisbahAction[] @relation("HisbahPerformer")
+  hisbahApprovals  HisbahAction[] @relation("HisbahApprover")
+  auditTrails      AuditTrail[]
+
+  @@map("users")
+}
+
+model Akad {
+  id             String     @id @default(uuid())
+  contractNumber String     @unique @map("contract_number") @db.VarChar(50)
+
+  // Parties
+  buyerId  String @map("buyer_id")
+  sellerId String @map("seller_id")
+  buyer    User   @relation("BuyerAkad", fields: [buyerId], references: [id])
+  seller   User   @relation("SellerAkad", fields: [sellerId], references: [id])
+
+  // Contract Details
+  title       String  @db.VarChar(255)
+  description String?
+  akadType    AkadType @map("akad_type")
+
+  // Financial
+  totalAmount        Decimal @map("total_amount") @db.Decimal(15, 2)
+  currency           String  @default("IDR") @db.VarChar(3)
+  platformFeePercent Decimal @default(2.50) @map("platform_fee_percent") @db.Decimal(5, 2)
+
+  // Terms
+  termsAndConditions String?   @map("terms_and_conditions")
+  deliveryAddress    String?   @map("delivery_address")
+  deliveryDeadline   DateTime? @map("delivery_deadline")
+
+  // Status
+  status AkadStatus @default(DRAFT)
+
+  // Blockchain
+  blockchainNetwork   String? @map("blockchain_network") @db.VarChar(20)
+  blockchainTxHash    String? @map("blockchain_tx_hash") @db.VarChar(66)
+  blockchainBlockNumber BigInt? @map("blockchain_block_number")
+  blockchainAkadHash  String? @map("blockchain_akad_hash") @db.VarChar(66)
+
+  // Documents
+  documentUrls Json @default("[]") @map("document_urls")
+
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  fundedAt    DateTime? @map("funded_at")
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  cancelledAt DateTime? @map("cancelled_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  milestones    Milestone[]
+  witnesses     Witness[]
+  payments      Payment[]
+  disputes      Dispute[]
+  hisbahActions HisbahAction[]
+  anchors       BlockchainAnchor[]
+
+  @@map("akad")
+}
+
+model Milestone {
+  id String @id @default(uuid())
+
+  // Reference
+  akadId String @map("akad_id")
+  akad   Akad   @relation(fields: [akadId], references: [id], onDelete: Cascade)
+
+  // Details
+  sequenceNumber Int     @map("sequence_number")
+  title          String  @db.VarChar(255)
+  description    String?
+
+  // Financial
+  percentage Decimal @db.Decimal(5, 2)
+  amount     Decimal @db.Decimal(15, 2)
+
+  // Deadline
+  dueDate DateTime? @map("due_date")
+
+  // Status
+  status MilestoneStatus @default(PENDING)
+
+  // Evidence
+  evidenceUrls        Json    @default("[]") @map("evidence_urls")
+  evidenceDescription String? @map("evidence_description")
+  submittedAt         DateTime? @map("submitted_at")
+
+  // Approvals
+  witnessApprovedAt DateTime? @map("witness_approved_at")
+  witnessApprovedBy String?   @map("witness_approved_by")
+  buyerApprovedAt   DateTime? @map("buyer_approved_at")
+
+  // Blockchain
+  blockchainTxHash     String? @map("blockchain_tx_hash") @db.VarChar(66)
+  blockchainStatusHash String? @map("blockchain_status_hash") @db.VarChar(66)
+
+  // Release
+  releasedAt    DateTime? @map("released_at")
+  releaseTxHash String?   @map("release_tx_hash") @db.VarChar(66)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  payments Payment[]
+  disputes Dispute[]
+
+  @@unique([akadId, sequenceNumber])
+  @@map("milestone")
+}
+
+model Witness {
+  id String @id @default(uuid())
+
+  // Reference
+  akadId String @map("akad_id")
+  akad   Akad   @relation(fields: [akadId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+  user   User   @relation("WitnessUser", fields: [userId], references: [id])
+
+  // Role
+  role WitnessRole
+
+  // Assignment
+  assignedAt   DateTime  @default(now()) @map("assigned_at")
+  assignedById String?   @map("assigned_by")
+  assignedBy   User?     @relation("WitnessAssignedBy", fields: [assignedById], references: [id])
+
+  // Approval
+  approvedAt        DateTime? @map("approved_at")
+  approvalNote      String?   @map("approval_note")
+  approvalSignature String?   @map("approval_signature")
+
+  // Rejection
+  rejectedAt      DateTime? @map("rejected_at")
+  rejectionReason String?   @map("rejection_reason")
+
+  // Location
+  approvalLocation Json? @map("approval_location")
+
+  // Blockchain
+  blockchainTxHash String? @map("blockchain_tx_hash") @db.VarChar(66)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([akadId, userId, role])
+  @@map("witness")
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  // Reference
+  akadId      String  @map("akad_id")
+  akad        Akad    @relation(fields: [akadId], references: [id])
+  milestoneId String? @map("milestone_id")
+  milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+
+  // Payment Details
+  amount       Decimal @db.Decimal(15, 2)
+  platformFee  Decimal @map("platform_fee") @db.Decimal(15, 2)
+  totalAmount  Decimal @map("total_amount") @db.Decimal(15, 2)
+
+  // Method
+  method PaymentMethod
+
+  // Status
+  status PaymentStatus @default(PENDING)
+
+  // External Reference
+  xenditInvoiceId  String? @map("xendit_invoice_id") @db.VarChar(100)
+  xenditExternalId String? @unique @map("xendit_external_id") @db.VarChar(100)
+  xenditPaymentUrl String? @map("xendit_payment_url")
+  xenditQrCodeUrl  String? @map("xendit_qr_code_url")
+
+  // Bank Details
+  bankCode             String? @map("bank_code") @db.VarChar(10)
+  virtualAccountNumber String? @map("virtual_account_number") @db.VarChar(30)
+
+  // Payer Info
+  payerEmail String? @map("payer_email") @db.VarChar(255)
+  payerPhone String? @map("payer_phone") @db.VarChar(20)
+
+  // Timing
+  expiresAt DateTime? @map("expires_at")
+  paidAt    DateTime? @map("paid_at")
+
+  // Webhook
+  webhookReceivedAt DateTime? @map("webhook_received_at")
+  webhookPayload    Json?     @map("webhook_payload")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("payment")
+}
+
+model Dispute {
+  id String @id @default(uuid())
+
+  // Reference
+  akadId      String  @map("akad_id")
+  akad        Akad    @relation(fields: [akadId], references: [id])
+  milestoneId String? @map("milestone_id")
+  milestone   Milestone? @relation(fields: [milestoneId], references: [id])
+
+  // Dispute Details
+  raisedById String          @map("raised_by")
+  raisedBy   User            @relation("DisputeRaiser", fields: [raisedById], references: [id])
+  category   DisputeCategory
+  reason     String
+
+  // Evidence
+  evidenceUrls        Json    @default("[]") @map("evidence_urls")
+  evidenceDescription String? @map("evidence_description")
+
+  // Status
+  status DisputeStatus @default(RAISED)
+
+  // Response
+  respondentId         String?   @map("respondent_id")
+  respondent           User?     @relation("DisputeRespondent", fields: [respondentId], references: [id])
+  response             String?
+  responseEvidenceUrls Json      @default("[]") @map("response_evidence_urls")
+  respondedAt          DateTime? @map("responded_at")
+
+  // Resolution
+  resolutionType         String?   @map("resolution_type") @db.VarChar(50)
+  resolutionAmountBuyer  Decimal?  @map("resolution_amount_buyer") @db.Decimal(15, 2)
+  resolutionAmountSeller Decimal?  @map("resolution_amount_seller") @db.Decimal(15, 2)
+  resolutionNote         String?   @map("resolution_note")
+  resolvedAt             DateTime? @map("resolved_at")
+
+  // Blockchain
+  blockchainTxHash   String? @map("blockchain_tx_hash") @db.VarChar(66)
+  resolutionTxHash   String? @map("resolution_tx_hash") @db.VarChar(66)
+
+  // Deadlines
+  responseDeadline   DateTime? @map("response_deadline")
+  resolutionDeadline DateTime? @map("resolution_deadline")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  arbitration Arbitration?
+
+  @@map("dispute")
+}
+
+model Arbitration {
+  id String @id @default(uuid())
+
+  // Reference
+  disputeId String  @unique @map("dispute_id")
+  dispute   Dispute @relation(fields: [disputeId], references: [id])
+
+  // Arbitrators
+  arbitrator1Id String? @map("arbitrator_1_id")
+  arbitrator1   User?   @relation("Arbitrator1", fields: [arbitrator1Id], references: [id])
+  arbitrator2Id String? @map("arbitrator_2_id")
+  arbitrator2   User?   @relation("Arbitrator2", fields: [arbitrator2Id], references: [id])
+  arbitrator3Id String? @map("arbitrator_3_id")
+  arbitrator3   User?   @relation("Arbitrator3", fields: [arbitrator3Id], references: [id])
+
+  // Votes
+  vote1       ArbitrationVote @default(PENDING)
+  vote1Reason String?         @map("vote_1_reason")
+  vote1At     DateTime?       @map("vote_1_at")
+
+  vote2       ArbitrationVote @default(PENDING)
+  vote2Reason String?         @map("vote_2_reason")
+  vote2At     DateTime?       @map("vote_2_at")
+
+  vote3       ArbitrationVote @default(PENDING)
+  vote3Reason String?         @map("vote_3_reason")
+  vote3At     DateTime?       @map("vote_3_at")
+
+  // Result
+  finalDecision          ArbitrationVote? @map("final_decision")
+  decisionReasoning      String?          @map("decision_reasoning")
+  splitPercentageBuyer   Decimal?         @map("split_percentage_buyer") @db.Decimal(5, 2)
+  splitPercentageSeller  Decimal?         @map("split_percentage_seller") @db.Decimal(5, 2)
+
+  // Blockchain
+  blockchainTxHash String? @map("blockchain_tx_hash") @db.VarChar(66)
+
+  // Timestamps
+  assignedAt     DateTime  @default(now()) @map("assigned_at")
+  votingDeadline DateTime? @map("voting_deadline")
+  decidedAt      DateTime? @map("decided_at")
+
+  @@map("arbitration")
+}
+
+model HisbahAction {
+  id String @id @default(uuid())
+
+  // Reference
+  akadId       String? @map("akad_id")
+  akad         Akad?   @relation(fields: [akadId], references: [id])
+  targetUserId String? @map("target_user_id")
+
+  // Action
+  actionType   HisbahActionType @map("action_type")
+  reason       String
+  evidenceUrls Json             @default("[]") @map("evidence_urls")
+
+  // Performed By
+  performedById String @map("performed_by")
+  performedBy   User   @relation("HisbahPerformer", fields: [performedById], references: [id])
+
+  // Approval
+  requiresApproval Boolean   @default(false) @map("requires_approval")
+  approvedById     String?   @map("approved_by")
+  approvedBy       User?     @relation("HisbahApprover", fields: [approvedById], references: [id])
+  approvedAt       DateTime? @map("approved_at")
+
+  // Reversal
+  reversedAt     DateTime? @map("reversed_at")
+  reversedById   String?   @map("reversed_by")
+  reversalReason String?   @map("reversal_reason")
+
+  // Blockchain
+  blockchainTxHash String? @map("blockchain_tx_hash") @db.VarChar(66)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("hisbah_action")
+}
+
+model BlockchainAnchor {
+  id String @id @default(uuid())
+
+  // Entity Reference
+  entityType AnchorEntityType @map("entity_type")
+  entityId   String           @map("entity_id")
+
+  // Akad Reference (for easier querying)
+  akadId String? @map("akad_id")
+  akad   Akad?   @relation(fields: [akadId], references: [id])
+
+  // Blockchain Data
+  network      String   @db.VarChar(20)
+  txHash       String   @unique @map("tx_hash") @db.VarChar(66)
+  blockNumber  BigInt   @map("block_number")
+  blockTimestamp DateTime? @map("block_timestamp")
+
+  // Data Hash
+  dataHash     String @map("data_hash") @db.VarChar(66)
+  dataSnapshot Json?  @map("data_snapshot")
+
+  // Gas
+  gasUsed      BigInt?  @map("gas_used")
+  gasPriceGwei Decimal? @map("gas_price_gwei") @db.Decimal(20, 9)
+
+  // Status
+  confirmed     Boolean @default(false)
+  confirmations Int     @default(0)
+
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  confirmedAt DateTime? @map("confirmed_at")
+
+  @@index([entityType, entityId])
+  @@map("blockchain_anchor")
+}
+
+model AuditTrail {
+  id String @id @default(uuid())
+
+  // Actor
+  userId   String? @map("user_id")
+  user     User?   @relation(fields: [userId], references: [id])
+  userRole String? @map("user_role") @db.VarChar(20)
+
+  // Action
+  action String @db.VarChar(100)
+
+  // Entity
+  entityType String @map("entity_type") @db.VarChar(50)
+  entityId   String @map("entity_id")
+
+  // Data
+  oldData  Json? @map("old_data")
+  newData  Json? @map("new_data")
+  metadata Json?
+
+  // Request Info
+  ipAddress String? @map("ip_address") @db.Inet
+  userAgent String? @map("user_agent")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_trail")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  // Recipient
+  userId String @map("user_id")
+
+  // Content
+  type    String @db.VarChar(50)
+  title   String @db.VarChar(255)
+  message String
+  data    Json?
+
+  // Status
+  read   Boolean   @default(false)
+  readAt DateTime? @map("read_at")
+
+  // Delivery
+  emailSent Boolean   @default(false) @map("email_sent")
+  smsSent   Boolean   @default(false) @map("sms_sent")
+  pushSent  Boolean   @default(false) @map("push_sent")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, read])
+  @@index([createdAt(sort: Desc)])
+  @@map("notification")
+}

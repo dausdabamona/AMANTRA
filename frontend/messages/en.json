@@ -16,8 +16,58 @@
     "viewAll": "View All",
     "selectLanguage": "Select Language",
     "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
     "connectWallet": "Connect Wallet",
-    "description": "Description"
+    "description": "Description",
+    "and": "and"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "profile": "Profile",
+    "welcomeBack": "Welcome Back",
+    "loginDescription": "Login to access your AMANTRA account",
+    "createAccount": "Create Account",
+    "registerDescription": "Join the trusted digital muamalah ecosystem",
+    "chooseLoginMethod": "Choose your preferred login method",
+    "fillDetails": "Fill in your details to create an account",
+    "withPassword": "With Password",
+    "withOTP": "With OTP",
+    "phone": "Phone",
+    "phoneNumber": "Phone Number",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "forgotPassword": "Forgot password?",
+    "sendOTP": "Send OTP Code",
+    "enterOTP": "Enter OTP Code",
+    "resendOTP": "Resend OTP",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "acceptTerms": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "secureLogin": "Your login is secured with bank-grade encryption",
+    "syariahCompliant": "Sharia-compliant platform for trusted transactions",
+    "loggedInAs": "Logged in as",
+    "passwordChecks": {
+      "length": "Min 8 characters",
+      "uppercase": "Uppercase letter",
+      "number": "Number",
+      "special": "Special character"
+    },
+    "errors": {
+      "identifierRequired": "Email or phone number is required",
+      "emailRequired": "Email is required",
+      "phoneRequired": "Phone number is required",
+      "passwordRequired": "Password is required",
+      "otpRequired": "OTP code is required",
+      "nameRequired": "Name is required",
+      "passwordTooWeak": "Password is too weak",
+      "passwordMismatch": "Passwords do not match",
+      "acceptTerms": "You must accept the terms and conditions"
+    }
   },
   "roles": {
     "user": "User",
@@ -32,7 +82,8 @@
     "shariaPrinciples": "Sharia Principles",
     "governance": "Governance",
     "transparency": "Transparency",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "contracts": "Contracts"
   },
   "hero": {
     "badge": "Digital Muamalah Ecosystem",

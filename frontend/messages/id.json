@@ -16,8 +16,58 @@
     "viewAll": "Lihat Semua",
     "selectLanguage": "Pilih Bahasa",
     "darkMode": "Mode Gelap",
+    "lightMode": "Mode Terang",
     "connectWallet": "Hubungkan Dompet",
-    "description": "Deskripsi"
+    "description": "Deskripsi",
+    "and": "dan"
+  },
+  "auth": {
+    "login": "Masuk",
+    "logout": "Keluar",
+    "register": "Daftar",
+    "profile": "Profil",
+    "welcomeBack": "Selamat Datang Kembali",
+    "loginDescription": "Masuk untuk mengakses akun AMANTRA Anda",
+    "createAccount": "Buat Akun",
+    "registerDescription": "Bergabung dengan ekosistem muamalah digital terpercaya",
+    "chooseLoginMethod": "Pilih metode login yang Anda inginkan",
+    "fillDetails": "Isi detail Anda untuk membuat akun",
+    "withPassword": "Dengan Password",
+    "withOTP": "Dengan OTP",
+    "phone": "Telepon",
+    "phoneNumber": "Nomor Telepon",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "fullName": "Nama Lengkap",
+    "forgotPassword": "Lupa kata sandi?",
+    "sendOTP": "Kirim Kode OTP",
+    "enterOTP": "Masukkan Kode OTP",
+    "resendOTP": "Kirim Ulang OTP",
+    "noAccount": "Belum punya akun?",
+    "haveAccount": "Sudah punya akun?",
+    "acceptTerms": "Saya menyetujui",
+    "termsOfService": "Syarat dan Ketentuan",
+    "privacyPolicy": "Kebijakan Privasi",
+    "secureLogin": "Login Anda dijamin dengan enkripsi tingkat bank",
+    "syariahCompliant": "Platform sesuai syariah untuk transaksi terpercaya",
+    "loggedInAs": "Masuk sebagai",
+    "passwordChecks": {
+      "length": "Min 8 karakter",
+      "uppercase": "Huruf besar",
+      "number": "Angka",
+      "special": "Karakter khusus"
+    },
+    "errors": {
+      "identifierRequired": "Email atau nomor telepon wajib diisi",
+      "emailRequired": "Email wajib diisi",
+      "phoneRequired": "Nomor telepon wajib diisi",
+      "passwordRequired": "Kata sandi wajib diisi",
+      "otpRequired": "Kode OTP wajib diisi",
+      "nameRequired": "Nama wajib diisi",
+      "passwordTooWeak": "Kata sandi terlalu lemah",
+      "passwordMismatch": "Kata sandi tidak cocok",
+      "acceptTerms": "Anda harus menyetujui syarat dan ketentuan"
+    }
   },
   "roles": {
     "user": "Pengguna",
@@ -32,7 +82,8 @@
     "shariaPrinciples": "Prinsip Syariah",
     "governance": "Tata Kelola",
     "transparency": "Transparansi",
-    "dashboard": "Dasbor"
+    "dashboard": "Dasbor",
+    "contracts": "Kontrak"
   },
   "hero": {
     "badge": "Ekosistem Muamalah Digital",
